@@ -26,7 +26,7 @@ $json = json_encode($json_array);
 if ($params['callback']) {
 	printf ('%s(%s);', $params['callback'], $json);
 } else { // no callback param, assume download option
-	//header('Content-Disposition: attachment; filename="fieldnotes.json"');
+	header('Content-Disposition: attachment; filename="fieldnotes.json"');
 	print $json;
 }
 

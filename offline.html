@@ -1,0 +1,21 @@
+<div title="Recording..." class="panel" id="results">
+	<fieldset></fieldset>
+	<p></p>
+</div>
+
+<script type="application/x-javascript">
+
+storeRecord(iui.param(args_global));
+
+</script>
+
+<!--
+
+Note: online.html & offline.html are identical, but the following lines in the CACHE MANIFEST file (files.appcache) seem to be critical:
+
+FALLBACK:
+online.html offline.html
+
+Simply caching online.html under the 'CACHE:' section breaks the JIT Javascript loader (http://www.iui-js.org/documentation/latest/extensions/extensions-jit-loader.html) that is used to execute the storeRecord() javascript function (above) that stores the record in localStorage (and the db if online).
+
+-->

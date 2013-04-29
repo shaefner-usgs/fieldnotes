@@ -1,0 +1,627 @@
+<!doctype html>
+<!-- Conditional comment for mobile ie7 blogs.msdn.com/b/iemobile/ -->
+<!--[if IEMobile 7 ]>		 <html class="no-js iem7" lang="en"> <![endif]-->
+<!--[if (gt IEMobile 7)|!(IEMobile)]><!--> <html class="no-js" lang="en" manifest="files.appcache"> <!--<![endif]-->
+
+<!-- <html class="no-js" lang="en" manifest="files.appcache"> -->
+
+<head>
+	<meta charset="utf-8">
+
+	<title>Fieldnotes</title>
+	<meta name="description" content="HTML5 app for scientists to record geologic features in the field">
+	<meta name="author" content="Scott Haefner, USGS">
+
+	<meta name="HandheldFriendly" content="True">
+	<meta name="MobileOptimized" content="320">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+
+	<link rel="apple-touch-icon-precomposed" sizes="114x114" href="img/h/apple-touch-icon-precomposed.png">
+	<link rel="apple-touch-icon-precomposed" sizes="72x72" href="img/m/apple-touch-icon-precomposed.png">
+	<link rel="apple-touch-icon-precomposed" href="img/l/apple-touch-icon-precomposed.png">
+	<link rel="shortcut icon" href="img/l/apple-touch-icon-precomposed.png">
+
+	<meta name="apple-mobile-web-app-capable" content="yes" />
+	<meta name="apple-mobile-web-app-status-bar-style" content="default">
+	<link rel="apple-touch-startup-image" href="img/startup-320x460.png">
+	<link rel="apple-touch-startup-image" href="img/startup-640x920.png" media="(device-height: 480px)" sizes="640x920" />
+	<link rel="apple-touch-startup-image" href="img/startup-640x1096.png" media="(device-height: 568px)" />
+
+	<!-- Prevent links in standalone web apps opening Mobile Safari. https://gist.github.com/1042026
+			 (commented out b/c it interferes with preventdefault on (e.g.) refresh / toggle map links -->
+	<!--<script>(function(a,b,c){if(c in b&&b[c]){var d,e=a.location,f=/^(a|html)$/i;a.addEventListener("click",function(a){d=a.target;while(!f.test(d.nodeName))d=d.parentNode;"href"in d&&(d.href.indexOf("http")||~d.href.indexOf(e.host))&&(a.preventDefault(),e.href=d.href)},!1)}})(document,window.navigator,"standalone")</script>-->
+
+	<meta http-equiv="cleartype" content="on">
+
+	<meta name="format-detection" content="telephone=no"/>
+	<meta name="format-detection" content="address=no"/>
+
+	<!-- reset CSS -->
+	<link rel="stylesheet" href="css/base.css">
+
+	<!-- iUI Library -->
+	<link rel="stylesheet" href="lib/iui/iui.css" type="text/css" />
+	<link rel="stylesheet" href="lib/iui/t/defaultgrad/defaultgrad-theme.css" type="text/css" />
+	<!-- styles for iUI lists inside panels -->
+	<link rel="stylesheet" href="lib/iui/ext-sandbox/masabi/t/default/iui_ext.css" type="text/css" />
+	<script src="lib/iui/iui.min.js"></script>
+
+	<!-- allow inline javascript to execute via ajax calls -->
+	<script src="lib/iui/ext-sandbox/jit-loader/jit-loader.js"></script>
+
+	<!-- Leaflet Library -->
+	<link rel="stylesheet" href="lib/leaflet/leaflet.css" type="text/css" />
+	<script src="lib/leaflet/leaflet.min.js"></script>
+
+	<!-- MarkerCluster Leaflet plug-in -->
+	<link rel="stylesheet" href="lib/leaflet/MarkerCluster.css" />
+	<link rel="stylesheet" href="lib/leaflet/MarkerCluster.Default.css" />
+	<script src="lib/leaflet/leaflet.markercluster.min.js"></script>
+
+	<!-- Modernizer library -->
+	<script src="lib/modernizr-2.0.6.min.js"></script>
+
+	<!-- custom CSS -->
+	<link rel="stylesheet" href="css/style.css" type="text/css" />
+
+</head>
+
+<body>
+
+	<div class="toolbar">
+		<h1 id="pageTitle"></h1>
+		<a id="backButton" class="button" href="#"></a>
+	</div>
+
+	<!-- Home -->
+
+	<div id="home" title="Home" class="panel" selected="true">
+
+		<h2>Identify yourself</h2>
+		<fieldset>
+			<div class="row" id="user">
+				<label for="operator">Operator</label>
+				<input type="email" name="operator" id="operator" placeholder="Email address" autocapitalize="off" autocorrect="off" required="required">
+			</div>
+			<div class="row">
+				<a href="#checkin">Check-in</a>
+			</div>
+		</fieldset>
+
+		<h2>Record a feature</h2>
+		<ul>
+			<li><a href="#rupture">Fault Rupture</a></li>
+			<li><a href="#liquefaction">Liquefaction</a></li>
+			<li><a href="#landslide">Landslide</a></li>
+			<li><a href="#tsunami">Tsunami</a></li>
+			<li><a href="#lifelines">Lifelines</a></li>
+			<li><a href="#building">Building</a></li>
+		</ul>
+
+		<h2>Maps and Downloads</h2>
+		<ul>
+			<li><a href="#features">View Features</a></li>
+		</ul>
+
+		<h2>Sync</h2>
+		<ul id="syncrecords">
+			<li><a href="#sync">Sync Records</a></li>
+		</ul>
+
+		<div id="hidden-fields">
+			<input type="hidden" name="form-name" id="form-name">
+			<input type="hidden" name="location-timestamp" id="timestamp">
+			<input type="hidden" name="location-gmt_offset" id="gmt_offset">
+			<input type="hidden" name="location-lat" id="lat">
+			<input type="hidden" name="location-lon" id="lon">
+			<input type="hidden" name="location-accuracy" id="accuracy">
+			<input type="hidden" name="location-z" id="z">
+			<input type="hidden" name="location-zaccuracy" id="zaccuracy">
+		</div>
+
+	</div>
+
+	<!-- Check-in form -->
+
+	<form name="checkin" id="checkin" title="Check-in" class="panel" action="online.html" method="get">
+		<p>You can check-in to record your location without mapping a feature.</p>
+		<fieldset>
+			<div class="row">
+				<label for="checkin-site">Site</label>
+				<input type="text" name="site" id="checkin-site" placeholder="site name" autocapitalize="off" autocorrect="off">
+			</div>
+			<div class="row">
+				<label for="checkin-location">Location</label>
+				<input type="text" name="location-description" id="checkin-location" placeholder="description">
+			</div>
+		</fieldset>
+		<fieldset>
+			<div class="row">
+				<label for="checkin-notes">Notes</label>
+				<textarea rows="3" name="notes" id="checkin-notes"></textarea>
+			</div>
+		</fieldset>
+		<a class="whiteButton record" href="#">Record</a>
+	</form>
+
+	<!-- Fault Rupture form -->
+
+	<form name="rupture" id="rupture" title="Fault Rupture" class="panel" action="online.html" method="get">
+		<fieldset>
+			<div class="row">
+				<label for="rupture-site">Site</label>
+				<input type="text" name="site" id="rupture-site" placeholder="site name" autocapitalize="off" autocorrect="off" required="required">
+			</div>
+			<div class="row photo">
+				<label for="rupture-photo">Photo</label>
+				<span class="launchapp">Choose...</span>
+				<input type="hidden" name="MAX_FILE_SIZE" value="2000000" />
+				<input type="file" name="photo" id="rupture-photo" accept="image/*" />
+			</div>
+			<div class="row">
+				<label for="rupture-location">Location</label>
+				<input type="text" name="location-description" id="rupture-location" placeholder="description">
+			</div>
+		</fieldset>
+		<fieldset>
+			<div class="row">
+				<label for="rupture-surface">Surface Rupture</label>
+				<select name="surface" id="rupture-surface" size="1">
+					<option value="">Choose one</option>
+					<option value="Scarp">Scarp</option>
+					<option value="En eschelon">En eschelon</option>
+					<option value="Moletrack">Moletrack</option>
+				</select>
+			</div>
+			<div class="row">
+				<label>Offset Feature Type</label>
+				<ul class="inputs">
+					<li><input type="checkbox" name="offset[]" id="rupture-soil" value="Soil"> <label for="rupture-soil">Soil</label></li>
+					<li><input type="checkbox" name="offset[]" id="rupture-bedrock" value="Bedrock"> <label for="rupture-bedrock">Bedrock</label></li>
+					<li><input type="checkbox" name="offset[]" id="rupture-road" value="Road or sidewalk"> <label for="rupture-road">Road or sidewalk</label></li>
+					<li><input type="checkbox" name="offset[]" id="rupture-foundation" value="Concrete foundation"> <label for="rupture-foundation">Concrete foundation</label></li>
+					<li><input type="checkbox" name="offset[]" id="rupture-pipeline" value="Pipeline"> <label for="rupture-pipeline">Pipeline</label></li>
+					<li><input type="checkbox" name="offset[]" id="rupture-other" value="Other"> <label for="rupture-other">Other</label></li>
+				</ul>
+			</div>
+		</fieldset>
+		<h2>Vector Measurements</h2>
+		<fieldset>
+			<div class="row">
+				<label for="rupture-azimuth">Slip Azimuth</label>
+				<input type="number" min="0" max="360" name="azimuth" id="rupture-azimuth" placeholder="degrees">
+			</div>
+			<div class="row">
+				<label for="rupture-plunge">Plunge</label>
+				<input type="number" min="0" max="360" name="plunge" id="rupture-plunge" placeholder="degrees">
+			</div>
+			<div class="row">
+				<label for="rupture-length">Slip Length</label>
+				<input type="number" step="0.1" name="length" id="rupture-length" placeholder="meters">
+			</div>
+		</fieldset>
+		<fieldset>
+			<div class="row">
+				<label for="rupture-notes">Notes</label>
+				<textarea rows="3" name="notes" id="rupture-notes"></textarea>
+			</div>
+		</fieldset>
+		<a class="whiteButton record" href="#">Record</a>
+	</form>
+
+	<!-- Liquefaction form -->
+
+	<form name="liquefaction" id="liquefaction" title="Liquefaction" class="panel" action="online.html" method="get">
+		<fieldset>
+			<div class="row">
+				<label for="liquefaction-site">Site</label>
+				<input type="text" name="site" id="liquefaction-site" placeholder="site name" autocapitalize="off" autocorrect="off" required="required">
+			</div>
+			<div class="row photo">
+				<label for="liquefaction-photo">Photo</label>
+				<span class="launchapp">Choose...</span>
+				<input type="hidden" name="MAX_FILE_SIZE" value="2000000" />
+				<input type="file" name="photo" id="liquefaction-photo" accept="image/*" />
+			</div>
+			<div class="row">
+				<label for="liquefaction-location">Location</label>
+				<input type="text" name="location-description" id="liquefaction-location" placeholder="description">
+			</div>
+		</fieldset>
+		<fieldset>
+			<div class="row">
+				<label>Sand Blows or Fissures</label>
+				<ul class="inputs">
+					<li><input type="radio" name="blows" id="liquefaction-blows-yes" value="yes"> <label for="liquefaction-blows-yes">Yes</label></li>
+					<li><input type="radio" name="blows" id="liquefaction-blows-no" value="no"> <label for="liquefaction-blows-no">No</label></li>
+				</ul>
+			</div>
+			<div class="row">
+				<label>Ground Settlement</label>
+				<ul class="inputs">
+					<li><input type="radio" name="settlement" id="liquefaction-settlement-yes" value="yes"> <label for="liquefaction-settlement-yes">Yes</label></li>
+					<li><input type="radio" name="settlement" id="liquefaction-settlement-no" value="no"> <label for="liquefaction-settlement-no">No</label></li>
+				</ul>
+			</div>
+			<div class="row">
+				<label>Lateral Spreading</label>
+				<ul class="inputs">
+					<li><input type="radio" name="spreading" id="liquefaction-spreading-yes" value="yes"> <label for="liquefaction-spreading-yes">Yes</label></li>
+					<li><input type="radio" name="spreading" id="liquefaction-spreading-no" value="no"> <label for="liquefaction-spreading-no">No</label></li>
+				</ul>
+			</div>
+		</fieldset>
+		<h2>Displacement</h2>
+		<fieldset>
+			<div class="row">
+				<label for="liquefaction-horizontal">Horizontal</label>
+				<input type="number" step="0.1" name="horizontal" id="liquefaction-horizontal" placeholder="meters">
+			</div>
+			<div class="row">
+				<label for="liquefaction-vertical">Vertical</label>
+				<input type="number" step="0.1" name="vertical" id="liquefaction-vertical" placeholder="meters">
+			</div>
+		</fieldset>
+		<fieldset>
+			<div class="row">
+				<label for="liquefaction-notes">Notes</label>
+				<textarea rows="3" name="notes" id="liquefaction-notes"></textarea>
+			</div>
+		</fieldset>
+		<a class="whiteButton record" href="#">Record</a>
+	</form>
+
+	<!-- Landslide form -->
+
+	<form name="landslide" id="landslide" title="Landslide" class="panel" action="online.html" method="get">
+		<fieldset>
+			<div class="row">
+				<label for="landslide-site">Site</label>
+				<input type="text" name="site" id="landslide-site" placeholder="site name" autocapitalize="off" autocorrect="off" required="required">
+			</div>
+			<div class="row photo">
+				<label for="landslide-photo">Photo</label>
+				<span class="launchapp">Choose...</span>
+				<input type="hidden" name="MAX_FILE_SIZE" value="2000000" />
+				<input type="file" name="photo" id="landslide-photo" accept="image/*" />
+			</div>
+			<div class="row">
+				<label for="landslide-location">Location</label>
+				<input type="text" name="location-description" id="landslide-location" placeholder="description">
+			</div>
+		</fieldset>
+		<fieldset>
+			<div class="row">
+				<label>Landslide Type</label>
+				<ul class="inputs">
+					<li><input type="checkbox" name="type[]" id="landslide-slide" value="Slide"> <label for="landslide-slide">Slide</label></li>
+					<li><input type="checkbox" name="type[]" id="landslide-fall" value="Fall"> <label for="landslide-fall">Fall</label></li>
+					<li><input type="checkbox" name="type[]" id="landslide-flow" value="Flow"> <label for="landslide-flow">Flow</label></li>
+					<li><input type="checkbox" name="type[]" id="landslide-spread" value="Spread"> <label for="landslide-spread">Spread</label></li>
+					<li><input type="checkbox" name="type[]" id="landslide-topple" value="Topple"> <label for="landslide-topple">Topple</label></li>
+					<li><input type="checkbox" name="type[]" id="landslide-complex" value="Complex"> <label for="landslide-complex">Complex</label></li>
+					<li><input type="checkbox" name="type[]" id="landslide-other" value="Other"> <label for="landslide-other">Other</label></li>
+				</ul>
+			</div>
+			<div class="row">
+				<label>Material Type</label>
+				<ul class="inputs">
+					<li><input type="checkbox" name="material[]" id="landslide-alluvium" value="Alluvium/soil/fill"> <label for="landslide-alluvium">Alluvium/soil/fill</label></li>
+					<li><input type="checkbox" name="material[]" id="landslide-sedimentary" value="Sedimentary rock"> <label for="landslide-sedimentary">Sedimentary rock</label></li>
+					<li><input type="checkbox" name="material[]" id="landslide-crystalline" value="Crystalline rock"> <label for="landslide-crystalline">Crystalline rock</label></li>
+				</ul>
+			</div>
+			<div class="row">
+				<label>Area Affected (m<sup>2</sup>)</label>
+				<ul class="inputs">
+					<li><input type="checkbox" name="area[]" id="landslide-0" value="&lt;10"> <label for="landslide-0">&lt;10</label></li>
+					<li><input type="checkbox" name="area[]" id="landslide-10" value="10-100"> <label for="landslide-10">10-100</label></li>
+					<li><input type="checkbox" name="area[]" id="landslide-100" value="100-1000"> <label for="landslide-100">100-1000</label></li>
+					<li><input type="checkbox" name="area[]" id="landslide-1000" value="1000-10,000"> <label for="landslide-1000">1000-10,000</label></li>
+					<li><input type="checkbox" name="area[]" id="landslide-10000" value="&gt;10,000"> <label for="landslide-10000">&gt;10,000</label></li>
+				</ul>
+			</div>
+			<div class="row">
+				<label>Vulnerable Facilities</label>
+				<ul class="inputs">
+					<li><input type="checkbox" name="facilities[]" id="landslide-buildings" value="Buildings"> <label for="landslide-buildings">Buildings</label></li>
+					<li><input type="checkbox" name="facilities[]" id="landslide-utilities" value="Utilities"> <label for="landslide-utilities">Utilities</label></li>
+					<li><input type="checkbox" name="facilities[]" id="landslide-roads" value="Roads"> <label for="landslide-roads">Roads</label></li>
+					<li><input type="checkbox" name="facilities[]" id="landslide-none" value="None"> <label for="landslide-none">None</label></li>
+					<li><input type="checkbox" name="facilities[]" id="landslide-other2" value="Other"> <label for="landslide-other2">Other</label></li>
+				</ul>
+			</div>
+		</fieldset>
+		<fieldset>
+			<div class="row">
+				<label for="landslide-notes">Notes</label>
+				<textarea rows="3" name="notes" id="landslide-notes"></textarea>
+			</div>
+		</fieldset>
+		<a class="whiteButton record" href="#">Record</a>
+	</form>
+
+	<!-- Tsunami form -->
+
+	<form name="tsunami" id="tsunami" title="Tsunami" class="panel" action="online.html" method="get">
+		<fieldset>
+			<div class="row">
+				<label for="tsunami-site">Site</label>
+				<input type="text" name="site" id="tsunami-site" placeholder="site name" autocapitalize="off" autocorrect="off" required="required">
+			</div>
+			<div class="row photo">
+				<label for="tsunami-photo">Photo</label>
+				<span class="launchapp">Choose...</span>
+				<input type="hidden" name="MAX_FILE_SIZE" value="2000000" />
+				<input type="file" name="photo" id="tsunami-photo" accept="image/*" />
+			</div>
+			<div class="row">
+				<label for="tsunami-location">Location</label>
+				<input type="text" name="location-description" id="tsunami-location" placeholder="description">
+			</div>
+		</fieldset>
+		<fieldset>
+			<div class="row">
+				<label for="tsunami-inundation">Inundation</label>
+				<input type="number" name="inundation" id="tsunami-inundation" placeholder="meters">
+			</div>
+			<div class="row">
+				<label for="tsunami-height">Wave Height</label>
+				<input type="number" step="0.1" name="height" id="tsunami-height" placeholder="meters">
+			</div>
+			<div class="row">
+				<label for="tsunami-peaktrough">Peak-to-Trough</label>
+				<input type="number" step="0.1" name="peaktrough" id="tsunami-peaktrough" placeholder="meters">
+			</div>
+			<div class="row">
+				<label for="tsunami-cycle">Wave Cycle</label>
+				<input type="number" name="cycle" id="tsunami-cycle" placeholder="minutes">
+			</div>
+		</fieldset>
+		<fieldset>
+			<div class="row">
+				<label for="tsunami-damage">Damage</label>
+				<textarea rows="3" name="damage" id="tsunami-damage"></textarea>
+			</div>
+		</fieldset>
+		<fieldset>
+			<div class="row">
+				<label for="tsunami-notes">Notes</label>
+				<textarea rows="3" name="notes" id="tsunami-notes"></textarea>
+			</div>
+		</fieldset>
+		<a class="whiteButton record" href="#">Record</a>
+	</form>
+
+	<!-- Lifelines form -->
+
+	<form name="lifelines" id="lifelines" title="Lifelines" class="panel" action="online.html" method="get">
+		<fieldset>
+			<div class="row">
+				<label for="lifelines-site">Site</label>
+				<input type="text" name="site" id="lifelines-site" placeholder="site name" autocapitalize="off" autocorrect="off" required="required">
+			</div>
+			<div class="row photo">
+				<label for="lifelines-photo">Photo</label>
+				<span class="launchapp">Choose...</span>
+				<input type="hidden" name="MAX_FILE_SIZE" value="2000000" />
+				<input type="file" name="photo" id="lifelines-photo" accept="image/*" />
+			</div>
+			<div class="row">
+				<label for="lifelines-location">Location</label>
+				<input type="text" name="location-description" id="lifelines-location" placeholder="description">
+			</div>
+		</fieldset>
+		<h2>Function</h2>
+		<fieldset>
+			<div class="row">
+				<label>Communication</label>
+				<ul class="inputs">
+					<li><input type="checkbox" name="communication[]" id="lifelines-phone" value="Telephone, Telegraph, Mobile Phone"> <label for="lifelines-phone">Telephone, Telegraph, Mobile Phone</label></li>
+					<li><input type="checkbox" name="communication[]" id="lifelines-media" value="Radio and Television"> <label for="lifelines-media">Radio and Television</label></li>
+					<li><input type="checkbox" name="communication[]" id="lifelines-print" value="Newspaper and Magazines"> <label for="lifelines-print">Newspaper and Magazines</label></li>
+				</ul>
+			</div>
+			<div class="row">
+				<label>Electric Power Delivery</label>
+				<ul class="inputs">
+					<li><input type="checkbox" name="power[]" id="lifelines-lines" value="Transmission Lines"> <label for="lifelines-lines">Overhead and Buried Transmission Lines</label></li>
+					<li><input type="checkbox" name="power[]" id="lifelines-yards" value="Substation and Switchyards"> <label for="lifelines-yards">Substation and Switchyards</label></li>
+				</ul>
+			</div>
+			<div class="row">
+				<label>Other</label>
+				<ul class="inputs">
+					<li><input type="checkbox" name="other[]" id="lifelines-water" value="Water / Wastewater"> <label for="lifelines-water">Water / Wastewater </label></li>
+					<li><input type="checkbox" name="other[]" id="lifelines-gas" value="Gas and Fuel Lines"> <label for="lifelines-gas">Gas and Fuel Lines</label></li>
+					<li><input type="checkbox" name="other[]" id="lifelines-transportation" value="Transportation"> <label for="lifelines-transportation">Transportation </label></li>
+					<li><input type="checkbox" name="other[]" id="lifelines-other" value="Other"> <label for="lifelines-other">Other</label></li>
+				</ul>
+			</div>
+		</fieldset>
+		<fieldset>
+			<div class="row">
+				<label for="lifelines-functionality">Functionality</label>
+				<select name="functionality" id="lifelines-functionality" size="1">
+					<option value="">Choose One</option>
+					<option value="Fully Functional">Fully Functional</option>
+					<option value="Partially Functional">Partially Functional</option>
+					<option value="Not Functional">Not Functional</option>
+				</select>
+			</div>
+			<div class="row">
+				<label for="lifelines-repair">Repair Time</label>
+				<select name="repair" id="lifelines-repair" size="1">
+					<option value="">Choose One</option>
+					<option value="1 - 6 days">1 &ndash; 6 days</option>
+					<option value="1 - 4 weeks">1 &ndash; 4 weeks</option>
+					<option value="1 - 12 months">1 &ndash; 12 months</option>
+					<option value="1 - 3 years">1 &ndash; 3 years</option>
+					<option value="4+ years">4+ years</option>
+				</select>
+			</div>
+			<div class="row">
+				<label>Recommend further investigation?</label>
+				<ul class="inputs">
+					<li><input type="radio" name="investigation" id="lifelines-investigation-yes" value="yes" /> <label for="lifelines-investigation-yes">Yes</label></li>
+					<li><input type="radio" name="investigation" id="lifelines-investigation-no" value="no" /> <label for="lifelines-investigation-no">No</label></li>
+				</ul>
+			</div>
+		</fieldset>
+		<fieldset>
+			<div class="row">
+				<label for="lifelines-notes">Notes</label>
+				<textarea rows="3" name="notes" id="lifelines-notes"></textarea>
+			</div>
+		</fieldset>
+		<a class="whiteButton record" href="#">Record</a>
+	</form>
+
+	<!-- Building form -->
+
+	<form name="building" id="building" title="Building" class="panel" action="online.html" method="get">
+		<fieldset>
+			<div class="row">
+				<label for="building-site">Site</label>
+				<input type="text" name="site" id="building-site" placeholder="site name" autocapitalize="off" autocorrect="off" required="required">
+			</div>
+			<div class="row photo">
+				<label for="building-photo">Photo</label>
+				<span class="launchapp">Choose...</span>
+				<input type="hidden" name="MAX_FILE_SIZE" value="2000000" />
+				<input type="file" name="photo" id="building-photo" accept="image/*" />
+			</div>
+			<div class="row">
+				<label for="building-location">Location</label>
+				<input type="text" name="location-description" id="building-location" placeholder="description">
+			</div>
+		</fieldset>
+		<fieldset>
+			<div class="row">
+				<label for="building-type">Building Type</label>
+				<select name="type" id="building-type" size="1">
+					<option value="">Choose One</option>
+					<option value="Steel">Steel</option>
+					<option value="Concrete">Concrete</option>
+					<option value="Timber">Timber</option>
+					<option value="Masonry">Masonry</option>
+					<option value="Other">Other</option>
+					<option value="Unknown">Unknown</option>
+				</select>
+			</div>
+			<div class="row">
+				<label for="building-use">Occupancy Use</label>
+				<select name="use" id="building-use" size="1">
+					<option value="">Choose One</option>
+					<option value="Unknown">Unknown</option>
+					<option value="Residential">Residential</option>
+					<option value="Commercial">Commercial</option>
+					<option value="Public/Government">Public / Government</option>
+					<option value="Industrial">Industrial</option>
+					<option value="Hotel / Motel">Hotel / Motel</option>
+					<option value="Hospital / Healthcare">Hospital / Healthcare</option>
+					<option value="Agricultural">Agricultural</option>
+					<option value="Religious">Religious</option>
+					<option value="Education">Education</option>
+					<option value="Utility">Utility</option>
+					<option value="Mixed Use">Mixed Use</option>
+					<option value="Other">Other</option>
+				</select>
+			</div>
+			<div class="row">
+				<label for="building-stories">Stories</label>
+				<input type="number" min="1" name="stories" id="building-stories" placeholder="before damage" />
+			</div>
+			<div class="row">
+				<label for="building-damage">Damage</label>
+				<select name="damage" id="building-damage" size="1">
+					<option value="">Choose One</option>
+					<option value="None">None</option>
+					<option value="Slight">Slight</option>
+					<option value="Moderate">Moderate</option>
+					<option value="Severe">Severe</option>
+					<option value="Total Collapse">Total Collapse</option>
+				</select>
+			</div>
+			<div class="row">
+				<label>Recommend further investigation?</label>
+				<ul class="inputs">
+					<li><input type="radio" name="investigation" id="building-investigation-yes" value="yes" /> <label for="building-investigation-yes">Yes</label></li>
+					<li><input type="radio" name="investigation" id="building-investigation-no" value="no" /> <label for="building-investigation-no">No</label></li>
+				</ul>
+			</div>
+		</fieldset>
+		<fieldset>
+			<div class="row">
+				<label for="building-notes">Notes</label>
+				<textarea rows="3" name="notes" id="building-notes"></textarea>
+			</div>
+		</fieldset>
+		<a class="whiteButton record" href="#">Record</a>
+	</form>
+
+	<!-- View Features -->
+
+	<div id="features" title="View Features" class="panel">
+		<p>Features recorded by you and your colleagues, updated in real-time.</p>
+		<p id="featurestatus"></p>
+		<h2>Maps</h2>
+		<ul id="periods">
+			<li><a href="#map" id="hour">Past Hour</a></li>
+			<li><a href="#map" id="day">Past Day</a></li>
+			<li><a href="#map" id="week">Past Week</a></li>
+			<li><a href="#map" id="month">Past Month</a></li>
+			<li><a href="#map">All</a></li>
+		</ul>
+		<h2>Downloads</h2>
+		<ul>
+			<li><a href="markers.json.php?period=month" id="download" target="_blank">GeoJSON file (Past Month)</a></li>
+			<li><a href="markers.json.php" id="download" target="_blank">GeoJSON file (All)</a></li>
+		</ul>
+		<p>Maps provided by <a href="http://open.mapquest.com" target="_blank">MapQuest</a>, <a href="http://www.openstreetmap.org/" target="_blank">OpenStreetMap</a> and contributors (portions courtesy NASA/JPL and USDA).</p>
+	</div>
+
+	<!-- Map of Features (set title via script to show Loading status during ajax request for map points) -->
+
+	<div id="map" title=""></div>
+
+
+
+	<div id="photo" title="Photo"></div>
+
+	<!-- Sync Records -->
+
+	<div id="sync" title="Sync Records" class="panel">
+		<p>Features you record while not connected to the internet are stored only on your device. They need to by &ldquo;synced&rdquo; to the server when your device is online.</p>
+		<p id="syncstatus"></p>
+		<ul id="syncresults" class="plaintext">
+			<li class="success"></li>
+			<li class="error"></li>
+		</ul>
+		<a class="whiteButton" id="syncbutton" target="_blank" href="#">Sync Records</a>
+	</div>
+
+	<!-- Recording screen -->
+
+	<div title="Recording..." class="panel" id="results">
+		<fieldset></fieldset>
+		<p></p>
+	</div>
+
+	<!--<script src="lib/zepto.min.js"></script>-->
+	<script src="lib/jquery-1.8.0.min.js"></script>
+
+	<!-- scripts concatenated and minified via ant build script-->
+	<script src="lib/helper.js"></script>
+	<!-- end scripts-->
+
+	<!-- Debugger - remove for production -->
+	<!--<script src="https://getfirebug.com/firebug-lite.js"></script>-->
+
+	<script src="lib/moment.min.js"></script>
+	<script src="lib/iui.onload.js"></script>
+	<script src="js/plugins.js"></script>
+	<script src="js/script.js"></script>
+
+</body>
+</html>

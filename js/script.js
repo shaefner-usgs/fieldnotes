@@ -1,0 +1,690 @@
+// Global vars
+var screen_id, show_map, db_errors, db_successes, map, cluster, layersControl, args_global = {};
+
+$(document).ready(function() {
+	resumeState();
+	initSaveState(); // initialize form elements for autosave
+	initClickHandlers();
+	initOperatorField();
+	initMap();
+
+	// enable 'Notes' inputs to automatically expand
+	MBP.autogrow(document.getElementById('checkin-notes'));
+	MBP.autogrow(document.getElementById('rupture-notes'));
+	MBP.autogrow(document.getElementById('liquefaction-notes'));
+	MBP.autogrow(document.getElementById('landslide-notes'));
+
+	// the following are commented out b/c we are disabling zooming in via HTML meta tag
+	//MBP.preventZoom(); // Prevent iOS from zooming form fields onfocus
+	//MBP.scaleFix(); // Prevent scaling bug in iOS when rotating portrait to landscape
+
+});
+
+
+// Fire events when user loads a screen (called from onload.js)
+function onScreenLoad(screen) {
+	if (!screen) { // gets called sometimes when screen isn't set (e.g. Ajax form submission before new screen loads)
+		return false;
+	}
+	var records = getRecords(),
+		num_records = Object.keys(records).length;
+		//isAndroid = navigator.userAgent.toLowerCase().indexOf("android") > -1, //&& ua.indexOf("mobile")
+		//isIos = navigator.userAgent.toLowerCase().match(/(iphone|ipod|ipad)/)
+
+	screen_id = '#' + screen;
+	localStorage.screen = screen_id; // save screen user is viewing
+
+	// home screen
+	if (screen === 'home') {
+		$('#operator').appendTo('#user'); // move operator field back to home screen
+		$('#syncrecords a span').remove(); // remove any previous sync msg
+		$('#syncrecords a').append(' <span>' + num_records + ' record'.pluralize(num_records) + '</span>');
+	}
+
+	// sync screen
+	else if (screen === 'sync') {
+		$('#syncstatus, #syncresults li').html('');
+
+		// update button and status
+		if (num_records > 0) {
+			$('#syncbutton').html('Sync ' + num_records + ' ' + 'Record'.pluralize(num_records));
+			if (!navigator.onLine) {
+				$('#syncbutton').addClass('disabled');
+				$('#syncstatus').html('Your device is currently offline.');
+			} else {
+				$('#syncbutton').removeClass('disabled');
+			}
+		} else {
+			$('#syncbutton').addClass('disabled');
+			$('#syncstatus').html('You don&rsquo;t have any records stored on your device.');
+		}
+	}
+
+	// view features screen
+	else if (screen === 'features') {
+		if (navigator.onLine) {
+			$('#features li a').removeClass('disabled').not('#download').removeAttr('target');
+			$('#featurestatus').html('');
+		} else { // disable buttons if offline
+			$('#features li a')
+				.addClass('disabled')
+				.attr('target', '_blank') // add target so that iui doesn't intercept link (so preventDefault works)
+				.click(function(e) {
+					e.preventDefault();
+				});
+			$('#featurestatus').html('<strong>Your device is currently offline.</strong> You must be connected to the internet to view maps and download data.');
+		}
+	}
+
+	// photo screen
+	else if (screen === 'photo') {
+		//$('#photo').html();
+	}
+
+	// form screen
+	else if ($(screen_id).get(0).tagName.toLowerCase() === 'form') {
+		$('#operator, #hidden-fields').appendTo(screen_id); // move operator and hidden fields to screen (form) user is viewing
+		$('#form-name').val(screen); // store form-name in hidden field
+		if (localStorage.spoton_site && !localStorage[screen + '-site']) { // set 'Site' field to Spoton site if user hasn't already overridden it
+			$('#' + screen + '-site').val(localStorage.spoton_site);
+		}
+		if (navigator.onLine) { // show photo upload only if user online
+			$('.photo').css('display', 'block');
+		} else {
+			$('.photo').css('display', 'none');
+		}
+		getLocation(new Date().getTime());
+	}
+
+}
+
+
+// onClick event handlers
+function initClickHandlers() {
+
+	// refresh geolocation
+	$('form').on('click', '#refresh', function(e) {
+		e.preventDefault();
+		$('.location').slideUp('fast', getLocation(new Date().getTime()));
+	});
+
+	// toggle map
+	$('form').on('click', '#showmap', function(e) {
+		e.preventDefault();
+		if ($('#showmap').text() === 'Show Map') { // show map
+			$('#locationmap').slideDown('fast');
+			$('#showmap').text('Hide Map');
+			show_map = 1;
+		} else { // hide map
+			$('#locationmap').slideUp('fast');
+			$('#showmap').text('Show Map');
+			show_map = 0;
+		}
+		localStorage.show_map = show_map;
+	});
+
+	// prevent form submittal until location is determined (and disabled class is removed)
+	$('form').on('click', '.record', function(e) {
+		if ($(this).hasClass('disabled')) {
+			e.preventDefault();
+		}
+	});
+
+	// echo photo
+	$('[name="photo"]').bind('change', function() {
+		var id = $(this).attr('id'),
+			//path = $(this).attr('value'),
+			//photo = path.substr(path.lastIndexOf('\\') + 1),
+			file = $('#' + id).get(0).files[0];
+		$('#' + id).parent().find('p').remove(); // remove photo previously echo'd
+		$('#' + id).after('<p>' + file.name + ' (' + Math.round(file.size * 10 / 1000) / 10 + ' kB)</p>'); // echo photo user selected
+	});
+
+	// start sync
+	$('#sync').on('click', '#syncbutton', function(e) {
+		e.preventDefault();
+		$(this).addClass('disabled'); // only allow button press once
+		syncRecords();
+	});
+
+	// display selected set of markers
+	$('#features').on('click', '#periods a', function(e) {
+		var period = $(this).attr('id') || '',
+			title = $(this).text();
+
+		// set title (set it directly on h1 tag b/c it doesn't register if you set it on the panel's title attr)
+		$('#pageTitle').text('Loading...');
+
+		// remove previously viewed markers
+		if (cluster) {
+			map.removeLayer(cluster);
+			layersControl.removeLayer(cluster);
+		}
+
+		// get selected markers
+		$.ajax({
+			url: 'markers.json.php?period=' + period,
+			dataType: 'jsonp',
+			jsonpCallback: 'addFeatureLayer',
+			timeout: 10000,
+			success: function() {
+				$('#pageTitle').text(title); // update title
+			}
+		});
+	});
+
+	$('#map').on('click', '.popup a', function(e) {
+	//$('.popup a').live('click', function(e) {
+		alert('click');
+		$('#photo').html('photo: ' + $(this).attr('data-fieldnotes-src'));
+	});
+
+}
+
+
+// Grey out form links if operator field not filled in
+function initOperatorField() {
+	if ($('#operator').val() === '') {
+		deActivate();
+	}
+
+	$('#operator').bind('keyup', function() {
+		if($(this).val().length >= 3) {
+			$('#home li a').removeClass('disabled').removeAttr('target');
+		} else {
+			deActivate();
+		}
+	});
+
+	function deActivate() {
+		$('#home li a').addClass('disabled')
+			.attr('target', '_blank') // add target so that iui doesn't intercept link (so preventDefault works)
+			.click(function(e) {
+				e.preventDefault();
+			});
+	}
+}
+
+
+// Initialize map of recorded features
+function initMap() {
+	var mapq_osm, mapq_sat, baseMaps, scaleControl;
+
+	// Leaflet init
+	map = new L.Map('map', {
+		center: new L.LatLng(37.5, -118.5),
+		zoom: 5,
+		minZoom: 2,
+		maxZoom: 18,
+		attributionControl: false,
+		scrollWheelZoom: false
+	});
+
+	// Mapquest base layers
+	mapq_osm = new L.TileLayer('http://{s}.mqcdn.com/tiles/1.0.0/osm/{z}/{x}/{y}.png', {
+		maxZoom: 18,
+		subdomains: ['otile1','otile2','otile3','otile4'],
+		detectRetina: true
+	});
+	mapq_sat = new L.TileLayer('http://{s}.mqcdn.com/tiles/1.0.0/sat/{z}/{x}/{y}.jpg', {
+		maxZoom: 18,
+		subdomains: ['oatile1','oatile2','oatile3','oatile4'],
+		detectRetina: true
+	});
+	map.addLayer(mapq_osm);
+
+	// Add layers / scale controllers to map
+	baseMaps = {
+		"Map": mapq_osm,
+		"Satellite": mapq_sat
+	};
+	layersControl = new L.Control.Layers(baseMaps, null, { collapsed: false });
+	scaleControl = new L.Control.Scale();
+	map.addControl(scaleControl).addControl(layersControl);
+
+	// don't want iui to intercept links
+	$('.leaflet-control-container a').addClass('nofollow');
+
+}
+
+
+// Add selected markers to map
+function addFeatureLayer (markers) {
+
+	// close any previously opened popups
+	map.closePopup();
+
+	// update map container - iUI framework confuses leaflet map and this forces map to display correctly
+	map.invalidateSize();
+
+	cluster = new L.MarkerClusterGroup({showCoverageOnHover: false, maxClusterRadius: 20, spiderfyOnMaxZoom: true});
+
+	// plot selected markers
+	if (markers) {
+		var blue = L.icon({
+			iconUrl: 'img/marker-blue.png',
+			iconSize: [29, 38],
+			iconAnchor: [14, 32],
+			popupAnchor: [1, -26]
+		}),
+		geojson = new L.GeoJSON(markers, {
+
+			pointToLayer: function (feature, latlng) {
+				return new L.Marker(latlng, { icon: blue });
+			},
+
+			onEachFeature: function (feature, layer) {
+				if (feature.properties) {
+					var img_base = feature.properties.photo.substr(0, feature.properties.photo.lastIndexOf('.')),
+						img_ext = feature.properties.photo.substr(feature.properties.photo.lastIndexOf('.') + 1),
+						//img_tag = '<img src="' + img_base + '.' + img_ext + '" />',
+						html = '<div class="popup"><h1>' + feature.properties.form + '</h1><p class="time">' + feature.properties.timestamp + ' ' + feature.properties.timezone + '</p><p>' + feature.properties.site + ' (' + feature.properties.operator + ')</p>';
+					if (feature.properties.photo) {
+						//html += '<a href="#photo" data-fieldnotes-src="' + img_base + '.' + img_ext + '">';
+						html += '<img src="uploads/' + img_base + '-tn.png" height="125" alt="site photo" />';
+						//html += '</a>';
+					}
+					if (feature.properties.notes) {
+						html += '<p>' + feature.properties.notes + '</p>';
+					}
+					layer.bindPopup(html, {maxWidth: '265', closeButton: false, autoPanPadding: new L.Point(5, 50)});
+				}
+			}
+		});
+		
+		cluster.addLayer(geojson);
+		map.addLayer(cluster);
+		
+		map.fitBounds(geojson.getBounds());
+		layersControl.addOverlay(cluster, 'Features');
+
+	} else { // no markers, reset map view
+		map.locate({setView: true, maxZoom: 6});
+	}
+
+}
+
+
+// Get user's current location from device
+function getLocation(timestamp) {
+	if (!Modernizr.geolocation) {
+		return false;
+	}
+
+	// disable submit button until device location determined
+	$('.record').addClass('disabled').attr('target', '_blank').removeAttr('type'); // add target="_blank" so that iui doesn't intercept links; remove type="submit" to disable form submitting
+
+	$('.location').remove(); // remove any previous location info / map
+
+	$(screen_id + '-location')
+		.after('<div class="location"><p id="coords">Locating&hellip;</p></div>');
+
+	navigator.geolocation.getCurrentPosition(setLocation, locationError, {enableHighAccuracy: true, maximumAge: 1000, timeout: 5000});
+}
+
+
+// Set user's location -- form fields
+function setLocation(_position) {
+	var ts = _position.timestamp,
+		timestamp = new Date(ts),
+		gmt_offset = timestamp.getTimezoneOffset() / 60 * -1,
+		lat, lon;
+
+  if (ts.toString().length === 16) { // if timestamp is in milliseconds (e.g. iOS 6), reset to sec.
+		ts = ts / 1000;
+  }
+
+	// set values of hidden form fields
+	$('#timestamp').val(moment(timestamp).format("YYYY-MM-DD HH:mm:ss")); // local time
+	$('#gmt_offset').val(gmt_offset);
+	$('#lat').val(_position.coords.latitude);
+	$('#lon').val(_position.coords.longitude);
+	$('#accuracy').val(_position.coords.accuracy);
+	$('#z').val(_position.coords.altitude);
+	$('#zaccuracy').val(_position.coords.altitudeAccuracy); // no idea why, but this param MUST be set last...anything after it not filled in
+
+	// use SpotOn location if available
+	if (localStorage.spoton_lat && localStorage.spoton_lon) {
+		lat = localStorage.spoton_lat;
+		lon = localStorage.spoton_lon;
+	} else {
+		lat = Math.round(_position.coords.latitude * 1000) / 1000;
+		lon = Math.round(_position.coords.longitude * 1000) / 1000;
+	}
+	displayLocation(lat, lon, timestamp);
+
+	// activate submit button
+	$('.record').removeClass('disabled').attr('type', 'submit').removeAttr('target');
+}
+
+
+// Display user's location -- map, coords, etc
+function displayLocation(lat, lon, timestamp) {
+	var coords, spoton;
+	
+	if (localStorage.spoton_lat && localStorage.spoton_lon) {
+		spoton = true;
+	}
+	
+	// display coords
+	coords = lat + ', ' + lon;
+	if (timestamp && !spoton) {
+		coords += ' <span>at ' + moment(timestamp).format("h:mm:ss a") + '</span>';
+	}
+
+	$('#coords')
+		.html(coords)
+		.after('<ul id="options"></ul>');
+
+	if (!spoton) {
+		$('#options').append('<li><a href="#" target="_blank" id="refresh">Refresh</a></li>'); // refresh link (add target="_blank" so that iui doesn't intercept links)
+	}
+
+	// display map if user online
+	if (navigator.onLine) {
+		var map_url = 'http://api.tiles.mapbox.com/v3/shaefner.map-8sg8c9nv/pin-m-star+cc3311(' + lon + ',' + lat + ')/' + lon + ',' + lat + ',13/544x544.jpg',
+			map_app = 'http://maps.apple.com/?q=' + lat + ',' + lon + '&t=m&z=13';
+
+		$('#options').append('<li><a href="#" target="_blank" id="showmap">Hide Map</a></li>'); // map toggle (add target="_blank" so that iui doesn't intercept links)
+		$('#options').after(
+			'<div id="locationmap">' + // map
+				'<img src="' + map_url + '" width="272" height="272" alt="map showing current location">' +
+				'<span class="launchapp"><a href="' + map_app + '" target="_blank">Open in Maps</a></span>' +
+			'</div>'
+		);
+
+		if (!show_map) {
+			$('#locationmap').hide();
+			$('#showmap').text('Show Map');
+		}
+	}
+	
+	// display location info
+	$('.location').hide().slideDown('fast');
+}
+
+
+// Location error handling
+function locationError(_error) {
+	var errors = ["Unknown error", "Permission denied by user", "Position unavailable", "Time out"];
+
+	$('#coords').append(
+		'<p class="error">' + errors[_error.code] + '</p>' +
+		'<ul id="options"><li><a href="#" target="_blank" id="refresh">Try again</a></li></ul>' // add target="_blank" so that iui doesn't intercept links
+	);
+
+	// show spoton location if available instead of error message
+	if (localStorage.spoton_lat && localStorage.spoton_lon) {
+		displayLocation(localStorage.spoton_lat, localStorage.spoton_lon);
+	}
+
+	// activate submit button
+	$('.record').removeClass('disabled').attr('type', 'submit').removeAttr('target');
+}
+
+
+// Store record in browser's localStorage; called from on(off)line.html
+function storeRecord(querystring) {
+	if (!Modernizr.localstorage) {
+		$('#results').attr('title', 'Error').html('<p>Can&rsquo;t store record. Your device doesn&rsquo;t support storage.</p>');
+		return false;
+	}
+	var key = moment().valueOf(), // milliseconds since Unix epoch
+		record = querystring;
+
+	if (localStorage.spoton) { // add spoton info if it's there
+		record += localStorage.spoton;
+	}
+
+	// store record in localStorage (and insert in db if user is online)
+	localStorage[key] = record;
+	if (navigator.onLine) {
+		var file_input_id = screen_id + '-photo';
+		if ($(file_input_id).attr('value')) { // user including a photo
+			var filename = $(file_input_id).attr('value'),
+				ext = filename.substr(filename.lastIndexOf('.') + 1);
+			record += '&photo=' + key + '.' + ext;
+			uploadPhoto(file_input_id, key);
+		}
+		insertRecord(key, record);
+	}
+
+	returnHtml(); // display results
+	clearState(args_global['form-name']); // remove stored form field values from localstorage
+	resumeState(); // remove previous entries from html form
+}
+
+
+// Insert record into db
+function insertRecord(key, querystring) {
+	$.get('insert.php?' + querystring, function(error) {
+		if (screen_id === '#sync') { // sync screen
+			if (error) {
+				db_errors ++;
+				$('#sync .error').html(db_errors + ' record'.pluralize(db_errors) + ' failed to sync ' + error);
+			} else {
+				db_successes ++;
+				$('#sync .success').html(db_successes + ' record'.pluralize(db_successes) + ' synced');
+			}
+		}
+		if (!error) { // remove from localStorage on successful db insert
+			localStorage.removeItem(key);
+		}
+	});
+}
+
+
+// Sync records stored in browser's localStorage to db
+function syncRecords() {
+	var records, record, key;
+
+	db_errors = 0; // reset error / success vars from any previous inserts
+	db_successes = 0;
+
+	records = getRecords();
+	for (key in records) {
+		record = records[key] + '&recorded=' + encodeURIComponent(key); // add recorded time to querystring
+		insertRecord(key, record);
+	}
+}
+
+
+// Get records from localStorage
+function getRecords() {
+	if (!Modernizr.localstorage) {
+		return false;
+	}
+	var i, key, records = {};
+
+	for (i = 0; i < localStorage.length; i ++) {
+		key = localStorage.key(i);
+		if ( // stored records use date string for key
+			key.match(/^\d{13}$/) ||
+			key.match(/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/) // deprecated format; kept for compatibility w/ previously stored records
+		) {
+			records[key] = localStorage[key];
+		}
+	}
+	return records;
+}
+
+
+// Upload attached photo
+function uploadPhoto(input_id, photo_id) {
+	var formdata = new FormData(); // http://stackoverflow.com/questions/5392344/sending-multipart-formdata-with-jquery-ajax
+	formdata.append('photo', $(input_id).get(0).files[0]);
+	formdata.append('name', photo_id);
+
+	$('#results p').html('<img src="img/loading.gif" width="16" height="16" /> Uploading photo...');
+
+	$.ajax({
+		url: 'upload.php',
+		type: 'POST',
+		data: formdata,
+		cache: false,
+		contentType: false, // when using FormData, must tell jQuery not to set contentType
+		processData: false // when using FormData, must tell jQuery not to process the data
+	}).done(function(error) {
+		if (error) {
+			$('#results p').html('<img src="img/error.png" width="16" height="16" /> ' + error);
+		} else {
+			$('#results p').html('<img src="img/ok.png" width="16" height="16" /> Photo uploaded successfully');
+		}
+	});
+}
+
+
+// Show summary screen after user submits form
+function returnHtml() {
+
+	var key, label,
+		return_html = '',
+		form_name = args_global['form-name'],
+		labels = { // 'friendly' field names for return screen
+			"rupture": {
+				"surface": "rupture",
+				"offset[]": "feature"
+			},
+			"liquefaction": {
+				"blows": "fissures"
+			}
+		};
+
+	for (key in args_global) {
+
+		// don't echo empty fields, form name, operator, or location details in return html
+		if (args_global[key] === '' ||
+				key === 'form-name' ||
+				key === 'operator' ||
+				(key.match(/^location-.+/) && !key.match(/location-description/))) {
+			continue;
+		}
+		if (key === 'photo') {
+			args_global[key] = args_global[key].substr(args_global[key].lastIndexOf('\\') + 1); // strip path
+		}
+
+		// use 'friendly' fieldnames
+		label = key.capitalize();
+		if (key === 'location-description') {
+			label = 'Location';
+		} 
+		else if (labels[form_name] && typeof labels[form_name][key] === 'string') {
+			label = labels[form_name][key].capitalize();
+		}
+		else if (label.match(/\[\]$/)) { // remove array notation '[]' from end of key
+			label = key.substr(0, key.length - 2).capitalize();
+		}
+
+		var row = '<div class="row"><label>' + label + '</label><span>' + args_global[key] + '</span></div>';
+		return_html += row;
+	}
+	$('#results fieldset').html(return_html);
+	$('#results').attr('title', 'Recorded');
+}
+
+
+// Save user entered values / current screen to localStorage
+function initSaveState() {
+	if (!Modernizr.localstorage) {
+		return false;
+	}
+	var elem_id, other_elem_id;
+
+	// onKeypress: textareas and input fields (text, number, email, etc)
+	$('input:not(:radio,:checkbox), textarea').keyup(function() {
+		elem_id = $(this).attr('id');
+		localStorage[elem_id] = $(this).val();
+	});
+
+	// onChange: pulldown menus and input fields--need change event for input text in case user doesn't type changes (e.g. a number field)
+	$('input, select').change(function() {
+		elem_id = $(this).attr('id');
+		if ($(this).attr('type') === 'checkbox') { // checkboxes
+			storeBoolean(elem_id);
+		} else if ($(this).attr('type') === 'radio') { // radio buttons
+			storeBoolean(elem_id);
+			$(this).parent().siblings().children('input').each(function(i) {
+				other_elem_id = $(this).attr('id');
+				storeBoolean(other_elem_id); // need to store value of "other" radio button
+			});
+		} else { // pulldown menus and text input (incl. number, email, etc)
+			localStorage[elem_id] = $(this).val();
+		}
+	});
+
+	function storeBoolean(id) {
+		if ($('#' + id).is(':checked')) {
+			localStorage[id] = 1;
+		} else {
+			localStorage[id] = 0;
+		}
+	}
+}
+
+
+// Retrieve user entered values / current screen from localStorage
+function resumeState() {
+	if (!Modernizr.localstorage) {
+		return false;
+	}
+	var elem_id, hashtag, url, is_checked;
+
+	show_map = parseInt(localStorage.show_map, 10);
+	screen_id = localStorage.screen;
+
+	// show appropriate screen
+	if (screen_id) {
+		if (screen_id === '#map') {
+			screen_id = '#features'; // markers only loaded when user clicks on a link to a map, so don't go directly to map
+		}
+		hashtag = screen_id.replace('#', '#_');
+		if (!window.location.hash) {
+			url = 'http://' + window.location.host + window.location.pathname + hashtag;
+			window.location.replace(url);
+		}
+	}
+
+	// set text areas and pulldown menus
+	$('textarea, select').each(function() {
+		elem_id = $(this).attr('id');
+		$(this).val(localStorage[elem_id]);
+	});
+
+	// set input fields (checkbox, radio, text)
+	$('input').each(function() {
+		elem_id = $(this).attr('id');
+		if ($(this).attr('type') === 'checkbox' || $(this).attr('type') === 'radio') { // checkboxes and radio buttons
+			is_checked = parseInt(localStorage[elem_id], 10);
+			if (is_checked) {
+				$(this).attr('checked', true);
+			} else {
+				$(this).attr('checked', false);
+			}
+		} else { // text, number, email, file (clears out previously entered file, but doesn't populate file input on load), etc.
+			$(this).val(localStorage[elem_id]);
+		}
+	});
+}
+
+
+// Clear form field values from localStorage when form submitted
+function clearState(form) {
+	var id,
+		elem = $('#' + form + ' input, #' + form + ' select, #' + form + ' textarea'); // get form elements by type
+
+	$(elem).each(function() { // loop thru form elements
+		id = $(this).attr('id');
+		if (id !== 'operator') {
+			localStorage.removeItem(id);
+		}
+	});
+
+	// remove SpotOn info
+	localStorage.removeItem('spoton');
+	localStorage.removeItem('spoton_site');
+	localStorage.removeItem('spoton_lat');
+	localStorage.removeItem('spoton_lon');
+
+	// remove reference to photo user uploaded
+	$('#' + form + ' .photo p').remove();
+}

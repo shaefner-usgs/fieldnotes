@@ -1,0 +1,61 @@
+CACHE MANIFEST
+# 2013-04-26 2:19pm
+
+# Alternative resources if user is offline
+FALLBACK:
+online.html offline.html
+#map tiles -> .png image saying "offline"
+
+# Resources / sites that require user to be online
+NETWORK:
+insert.php
+markers.json.php
+upload.php
+*
+
+# Resources to cache
+CACHE:
+css/base.css
+css/style.css
+favicon.ico
+img/error.png
+img/loading.gif
+img/marker-blue.png
+img/ok.png
+img/startup-320x460.png
+img/startup-640x920.png
+js/plugins.js
+js/script.js
+lib/helper.js
+lib/iui.onload.js
+lib/iui/iui.css
+lib/iui/iui.min.js
+lib/iui/ext-sandbox/masabi/t/default/iui_ext.css
+lib/iui/ext-sandbox/masabi/t/default/listArrow.png
+lib/iui/ext-sandbox/jit-loader/jit-loader.js
+lib/iui/t/default/back-img.png
+lib/iui/t/default/backButton.png
+lib/iui/t/default/backButtonBack.png
+lib/iui/t/default/backButtonSel.png
+lib/iui/t/defaultgrad/defaultgrad-theme.css
+lib/iui/t/default/listArrow.png
+lib/iui/t/default/listArrowSel.png
+lib/iui/t/default/loading.gif
+lib/iui/t/default/selection.png
+lib/iui/t/default/title-img.png
+lib/leaflet/images/layers.png
+lib/leaflet/images/marker-icon.png
+lib/leaflet/images/marker-shadow.png
+lib/leaflet/images/zoom-in.png
+lib/leaflet/images/zoom-out.png
+lib/leaflet/leaflet.css
+lib/leaflet/leaflet.min.js
+lib/leaflet/MarkerCluster.css
+lib/leaflet/MarkerCluster.Default.css
+lib/leaflet/leaflet.markercluster.min.js
+lib/modernizr-2.0.6.min.js
+lib/moment.min.js
+lib/zepto.jcryption.min.js
+#lib/zepto.min.js
+lib/jquery-1.8.0.min.js
+spoton.html

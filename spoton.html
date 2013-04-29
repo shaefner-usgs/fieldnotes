@@ -1,0 +1,62 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<script type="text/javascript" src="lib/zepto.min.js"></script>
+<script type="text/javascript" src="lib/zepto.jcryption.min.js"></script>
+<script type="text/javascript" src="js/plugins.js"></script>
+
+<title>Recording SpotOn Info</title>
+<script>
+
+	$(document).ready(function() {
+		var str = decryptSpotonInfo('info');
+		if (str) {
+			var spoton_obj = getUrlParams(str),
+				spoton_str = '',
+				key_name;
+
+			//console.log(spoton_obj);
+
+			// create querystring and append each field passed from SpotOn with 'spoton-'
+			for (var key in spoton_obj) {
+				// store lat / lon using unabbreviated key names so they don't conflict w/ Fieldnotes
+				key_name = key;
+				if (key === 'lat') {
+					key_name = 'latitude';
+				}
+				if (key === 'long') {
+					key_name = 'longitude';
+				}
+				spoton_str += '&' + 'spoton-' + key_name + '=' + spoton_obj[key];
+			}
+
+			// store all Spoton values as a querystring for inserting into db
+			localStorage.spoton = spoton_str;
+			
+			// store specific Spoton params that will override values and/or be displayed in Fieldnotes
+			if (spoton_obj.email) {
+				localStorage.operator = spoton_obj.email;
+			}
+			if (spoton_obj.name) {
+				localStorage.spoton_site = spoton_obj.name;
+			}
+			if (spoton_obj.lat) {
+				localStorage.spoton_lat = spoton_obj.lat;				
+			}
+			if (spoton_obj['long']) {
+				localStorage.spoton_lon = spoton_obj['long'];
+			}
+		}
+		
+		window.location.replace('./#_home');
+	});
+		
+</script>
+</head>
+<body>
+
+<p>Loading Fieldnotes&hellip;</p>
+
+</body>
+</html>

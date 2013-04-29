@@ -1,0 +1,80 @@
+master
+
+* updated iui (0.4.0)
+* changed css theme to built-in gradients instead of images (and deleted unused img's in cache manifest file)
+* changed redirect in spoton.html to relative uri
+* removed jcryption library from "main" fieldnotes app (only needs to be in spoton.html)
+* minified scripts (and added .min to existing filenames where appropriate)
+* organized libraries into lib folder
+* bugfix: location description echoed on form submit
+* "friendly" names on form submit automatically truncate array notation '[]'
+
+v2.2
+
+* cleaned up interface: categories on home screen and tweaks to wording
+* refactored location: added a description field and lat / lon values no longer editable
+* refactored insert.php, markers.json.php
+* reduce decimal places to 3 for lat, lon display
+* added SpotOn integration
+  - gets info from SpotOn via querystring; stores all values and populates some fields
+  - select fields added to JSON feed
+  - display lat, lon in UI
+  - changed code in plugins.js and spoton.html that parses spoton info
+  - spoton location overrides device location for display purposes
+* added options to filter geojson feed - after, before, between
+* added Tsunami, Building, Lifelines forms
+* added startup image for iPhone 5
+* added marker clusterer / spiderfier
+* added php no-cache header to markers.json.php and insert.php
+* updated jquery (1.8.0)
+* updated leaflet (0.4.4)
+* changed google static map to mapbox b/c google is unreliable
+* changed "open maps app" link to apple maps
+* changed padding value on input fields to allow more room for labels
+* bugfix: results display cleaned up for entries w/ multiple lines, long labels
+* bugfix: decimals now allowed on applicable fields (db changed to float; added step attribute)
+* bugfix: label attributes for photo fields didn't match id values
+* bugfix: if user requesting a specific screen (i.e. hashtag), go there instead of screen stored in localstorage
+* patch: iOS 6 uses milliseconds for geo timestamp; test for this and divide by 1000
+* now shows photo upload on iOS
+* now shows error log on sync screen when it fails
+* ran plugins.js thru jslint
+
+v2.1
+
+* added photo upload w/ access to camera (android only for now)
+* added photo field to db tables
+* added autogrow to Notes field to accommodate longer entries
+* added moment.js library
+* added launchapp css class for launch buttons
+* added timeout param to geolocation call
+* added retina display map tiles
+* new startup image
+* updated Leaflet (0.4)
+* changed json file to use lat, lon values entered manually by user for markers displayed on map
+* changed sync button on home screen to always indicate number of records to sync (even if 0)
+* changed default map view to user's location when no markers visible 
+* changed clearState() to be called once (instead of once for each form elem)
+* changed insert.php to use sqlString() for all values
+* changed null to empty string in json markers file
+* changed marker popups to show site name and photo
+* changed the way sync screen's html is displayed -- no longer relies on storing default html in global var
+* refactored localstorage key to use time in secs instead of datestamp (and then use same key for uploaded photo id)
+* bugfix: set meta tag to prevent zooming - cleans up jankiness when selecting form fields and iOS zoomed in page
+* bugfix: map now displays correctly on desktop, android (using map.invalidateSize())
+* bugfix: leaflet popup now autopans below iui toolbar
+* bugfix: after clicking leaflet close button, iUI confused and toolbar nav broken (turn off close button)
+* bugfix: previously opened leaflet popups are now closed each time map initializes
+* bugfix: disable map / download buttons if device offline
+* bugfix: descenders no longer cutoff within form fields on Android
+
+v2.0
+
+* added checkin feature
+* added map of recorded features
+* added data download
+* updated MBP, iUI, jQuery
+* moved number of records stored on device to inside of sync button
+* bugfix: gmap of user location not loading b/c of setting in cache manifest
+* bugfix: refresh / hide map links navigating away from page b/c of script included in index to prevent links launching safari
+* bugfix: timezone aware (store records in UTC (except location table which is localtime of device)

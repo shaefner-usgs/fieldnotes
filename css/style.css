@@ -1,0 +1,251 @@
+html, body {
+	height: 100%;
+}
+
+/* override default margins, shadows, size, etc */
+body > .panel > h2 {
+	margin: 15px 0 8px 10px;
+	text-shadow: rgba(255, 255, 255, .8) 0px 1px 0;
+	font-size: 1.2em;
+}
+.panel > p, ul.plaintext {
+	margin-right: 10px;
+	margin-left: 10px;
+	color: #4D4D70;
+	text-align: left;
+	text-shadow: rgba(255, 255, 255, .8) 0px 1px 0;
+	font-size: 1.1em;
+}
+.panel > ul > li a {
+	padding: 10px 0 10px 10px;
+}
+
+/* override default link colors set in mobile bp (base.css) */
+.toolbar a, .toolbar a:hover {
+	color: #fff;
+}
+a.whiteButton, a.whiteButton:hover {
+	color: #000;
+}
+
+/* status text inside list link element */
+li a span {
+	position: absolute;
+	right: 28px;
+	color: #425C8D;
+	font-weight: normal;
+}
+li a:active span {
+	color: #fff;
+}
+
+/* status of writing to db */
+.success {
+	color: #008000;
+}
+.error {
+	color: #c00 !important;
+}
+
+.toolbar a, .toolbar a:hover {
+	color: #fff;
+}
+
+/* Map of features screen
+----------------------------------------- */
+
+.toolbar {
+	position: relative;
+	z-index: 10;
+}
+#map {
+	z-index: 1;
+	margin-top: -45px;
+	height: 100%;
+}
+.leaflet-top {
+	top: 45px;
+}
+
+.popup h1 {
+	font-size: 1.3em;
+}
+.popup .time {
+	margin-top: -.8em;
+	color: #666;
+}
+.popup img {
+	margin: -1em 0;
+}
+
+/* iPhone [portrait + landscape] */
+@media only screen and (max-device-width: 480px) {
+	.leaflet-control-zoom {
+		 display: none;
+	}
+}
+
+
+/* Sync screen
+----------------------------------------- */
+
+#syncstatus {
+	font-weight: bold;
+}
+
+ul#syncresults {
+	margin-top: 1em;
+}
+#syncresults li {
+	margin: 0;
+	padding: 0;
+	min-height: 1px; /* override iui */
+	text-align: left;
+}
+
+
+/* Form screens
+----------------------------------------- */
+
+/* checkbox / radio button lists */
+ul.inputs {
+	overflow: auto;
+	margin: 0;
+	padding: 2.5em 1em .5em;
+}
+ul.inputs li {
+	float: left;
+	margin-right: 1.2em;
+	list-style: none;
+	line-height: 1.8;
+}
+
+/* grey out disabled links / buttons */
+a.disabled, a.disabled:active {
+	background-color: none !important;
+	color: #999 !important;
+}
+
+/* form control css (mostly adapted from previous version of iUI) */
+fieldset > .row > input,
+fieldset > .row > textarea,
+fieldset > .row > select {
+	margin: 0;
+	width: 100%;
+	height: inherit;
+	background: transparent;
+	font-size: .8em;
+	-webkit-appearance: none;
+}
+fieldset > .row > textarea,
+fieldset > .row > input:not([type|=radio]):not([type|=checkbox]) {
+	-webkit-box-sizing: border-box;
+	box-sizing: border-box;
+	margin-bottom: -4px;
+	padding: 12px 10px 14px 125px;
+	border: 0;
+	-webkit-border-radius: 0px;
+	resize: none;
+}
+fieldset > .row > select {
+	padding-right: 10px;
+	width: 12em;
+	height: 42px;
+	border: 0;
+	color: #425c8d;
+}
+
+/* override take photo (browse) file input */
+.photo {
+	position: relative;
+}
+.photo input {
+	position: absolute;
+	top: 0;
+	right: 0;
+	opacity: 0;
+}
+.photo span {
+	margin: 9px 10px 14px 125px;
+	padding: 0;
+}
+.photo p {
+	position: absolute;
+	top: 2px;
+	left: 18em;
+	color: #333;
+	font-size: .75em;
+}
+
+/* current location info, map on form */
+.location {
+	margin: .5em 0 .5em 14px;
+	font-size: .9em;
+}
+.location p, #options {
+	margin: 0;
+	padding: 0;
+}
+.location .error {
+	margin-top: .5em;
+}
+#options {
+	overflow: auto;
+	margin: .25em 0;
+}
+#options li {
+	float: left;
+	margin-right: 1.2em;
+	list-style: none;
+}
+#options a, #options a:hover, #options a:active, #options a:visited {
+	background: none !important; /* override iui bg */
+	color: #00c !important;	 /* override iui active color */
+}
+#spoton-loc {
+	margin-top: 1em;
+	font-size: .8em;
+}
+#locationmap img {
+	display: block;
+	padding: .5em 0;
+}
+
+/* launch app buttons */
+.launchapp {
+	display: inline-block;
+	padding: 2px 8px !important;
+	border: 1px solid #ddd;
+	border-radius: 3px;
+	background: #eee;
+	background-image: -webkit-linear-gradient(top, rgb(244,244,244) 0%, rgb(233,233,233) 50%);
+	color: #000;
+	font-size: .9em;
+}
+.launchapp a {
+	color: #000;
+	text-decoration: none;
+}
+
+/* operator field gets moved in the DOM from 'home' screen to 'form' screen user is currently viewing */
+.hide, #hidden-fields, form #operator {
+	display: none;
+}
+
+#checkin > p {
+	margin-bottom: 1em;	 
+}
+
+/* results screen */
+#results p img {
+	margin-top: -5px;
+}
+#results span {
+	position: static;
+	display: block;
+	padding-bottom: 8px;
+}
+#results label {
+	overflow: hidden;
+	width: 90px;
+}

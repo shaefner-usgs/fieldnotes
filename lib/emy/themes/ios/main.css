@@ -645,9 +645,7 @@ section.panel footer {
 #preloader {
 	background-image:	  	url(loading.gif),
 													url(backButton.png), 
-													url(backButtonBg.png), 
-													url(backButtonSel.png), 
-													url(backButtonBgSel.png);
+													url(backButtonSel.png); 
 }
 
 @media only screen and (max-width: 40em) 

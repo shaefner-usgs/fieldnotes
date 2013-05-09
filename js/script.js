@@ -82,6 +82,7 @@ var initView = {
 				$('#syncbutton').removeClass('disabled');
 			}
 		} else {
+			$('#syncbutton').html('Sync Records');
 			$('#syncbutton').addClass('disabled');
 			$('#syncstatus').html('You don&rsquo;t have any records stored on your device.');
 		}

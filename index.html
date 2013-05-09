@@ -1,7 +1,7 @@
 <!doctype html>
 <!-- Conditional comment for mobile ie7 blogs.msdn.com/b/iemobile/ -->
 <!--[if IEMobile 7 ]>		 <html class="no-js iem7" lang="en"> <![endif]-->
-<!--[if (gt IEMobile 7)|!(IEMobile)]><!--> <html class="no-js" lang="en" manifest="files.appcache"> <!--<![endif]-->
+<!--[if (gt IEMobile 7)|!(IEMobile)]><!--> <html class="no-js" lang="en"> <!--<![endif]-->
 
 <!-- <html class="no-js" lang="en" manifest="files.appcache"> -->
 
@@ -36,18 +36,11 @@
 	<meta name="format-detection" content="telephone=no"/>
 	<meta name="format-detection" content="address=no"/>
 
-	<!-- reset CSS -->
-	<link rel="stylesheet" href="css/base.css">
-
 	<!-- Emy Library -->
 	<link rel="stylesheet" href="lib/emy/emy.css" type="text/css" />
 	<link rel="stylesheet" href="lib/emy/themes/ios/main.css" type="text/css" />
-	<!-- styles for iUI lists inside panels -->
-	<!--<link rel="stylesheet" href="lib/iui/ext-sandbox/masabi/t/default/iui_ext.css" type="text/css" />-->
+	<link rel="stylesheet" href="lib/emy/plugins/extended-transitions/emy-extended-transitions.css" type="text/css" />
 	<script src="lib/emy/emy.js"></script>
-
-	<!-- allow inline javascript to execute via ajax calls -->
-	<!--<script src="lib/iui/ext-sandbox/jit-loader/jit-loader.js"></script>-->
 
 	<!-- Leaflet Library -->
 	<link rel="stylesheet" href="lib/leaflet/leaflet.css" type="text/css" />
@@ -68,14 +61,14 @@
 
 <body>
 
-	<div class="toolbar">
-		<h1 id="pageTitle"></h1>
-		<a id="backButton" class="button" href="#"></a>
-	</div>
+	<header class="toolbar">
+		<div><a id="backButton" class="button" href="#"></a></div>
+		<h1 id="viewTitle"></h1>
+	</header>
 
 	<!-- Home -->
 
-	<div id="home" title="Home" class="panel" selected="true">
+	<section id="home" data-title="Home" class="panel" selected="true" data-onshow="initView.home()">
 
 		<h2>Identify yourself</h2>
 		<fieldset>
@@ -83,10 +76,11 @@
 				<label for="operator">Operator</label>
 				<input type="email" name="operator" id="operator" placeholder="Email address" autocapitalize="off" autocorrect="off" required="required">
 			</div>
-			<div class="row">
-				<a href="#checkin">Check-in</a>
-			</div>
 		</fieldset>
+
+		<ul>
+			<li><a href="#checkin">Check-in</a></li>
+		</ul>
 
 		<h2>Record a feature</h2>
 		<ul>
@@ -119,11 +113,12 @@
 			<input type="hidden" name="location-zaccuracy" id="zaccuracy">
 		</div>
 
-	</div>
+	</section>
 
 	<!-- Check-in form -->
 
-	<form name="checkin" id="checkin" title="Check-in" class="panel" action="online.html" method="get">
+<section id="checkin" data-title="Check-in" class="panel" data-onshow="initView.form()">
+	<form name="checkin" action="online.html" method="get">
 		<p>You can check-in to record your location without mapping a feature.</p>
 		<fieldset>
 			<div class="row">
@@ -141,12 +136,14 @@
 				<textarea rows="3" name="notes" id="checkin-notes"></textarea>
 			</div>
 		</fieldset>
-		<a class="whiteButton record" href="#">Record</a>
+		<button class="mainButton record" href="#" type="submit">Record</button>
 	</form>
+</section>
 
 	<!-- Fault Rupture form -->
 
-	<form name="rupture" id="rupture" title="Fault Rupture" class="panel" action="online.html" method="get">
+<section id="rupture" data-title="Fault Rupture" class="panel" data-onshow="initView.form()">
+	<form name="rupture" action="online.html" method="get">
 		<fieldset>
 			<div class="row">
 				<label for="rupture-site">Site</label>
@@ -175,7 +172,7 @@
 			</div>
 			<div class="row">
 				<label>Offset Feature Type</label>
-				<ul class="inputs">
+				<ul class="inputs normal">
 					<li><input type="checkbox" name="offset[]" id="rupture-soil" value="Soil"> <label for="rupture-soil">Soil</label></li>
 					<li><input type="checkbox" name="offset[]" id="rupture-bedrock" value="Bedrock"> <label for="rupture-bedrock">Bedrock</label></li>
 					<li><input type="checkbox" name="offset[]" id="rupture-road" value="Road or sidewalk"> <label for="rupture-road">Road or sidewalk</label></li>
@@ -206,12 +203,14 @@
 				<textarea rows="3" name="notes" id="rupture-notes"></textarea>
 			</div>
 		</fieldset>
-		<a class="whiteButton record" href="#">Record</a>
+		<button class="mainButton record" href="#" type="submit">Record</button>
 	</form>
+</section>
 
 	<!-- Liquefaction form -->
 
-	<form name="liquefaction" id="liquefaction" title="Liquefaction" class="panel" action="online.html" method="get">
+<section id="liquefaction" data-title="Liquefaction" class="panel" data-onshow="initView.form()">
+	<form name="liquefaction" action="online.html" method="get">
 		<fieldset>
 			<div class="row">
 				<label for="liquefaction-site">Site</label>
@@ -231,21 +230,21 @@
 		<fieldset>
 			<div class="row">
 				<label>Sand Blows or Fissures</label>
-				<ul class="inputs">
+				<ul class="inputs normal">
 					<li><input type="radio" name="blows" id="liquefaction-blows-yes" value="yes"> <label for="liquefaction-blows-yes">Yes</label></li>
 					<li><input type="radio" name="blows" id="liquefaction-blows-no" value="no"> <label for="liquefaction-blows-no">No</label></li>
 				</ul>
 			</div>
 			<div class="row">
 				<label>Ground Settlement</label>
-				<ul class="inputs">
+				<ul class="inputs normal">
 					<li><input type="radio" name="settlement" id="liquefaction-settlement-yes" value="yes"> <label for="liquefaction-settlement-yes">Yes</label></li>
 					<li><input type="radio" name="settlement" id="liquefaction-settlement-no" value="no"> <label for="liquefaction-settlement-no">No</label></li>
 				</ul>
 			</div>
 			<div class="row">
 				<label>Lateral Spreading</label>
-				<ul class="inputs">
+				<ul class="inputs normal">
 					<li><input type="radio" name="spreading" id="liquefaction-spreading-yes" value="yes"> <label for="liquefaction-spreading-yes">Yes</label></li>
 					<li><input type="radio" name="spreading" id="liquefaction-spreading-no" value="no"> <label for="liquefaction-spreading-no">No</label></li>
 				</ul>
@@ -268,12 +267,14 @@
 				<textarea rows="3" name="notes" id="liquefaction-notes"></textarea>
 			</div>
 		</fieldset>
-		<a class="whiteButton record" href="#">Record</a>
+		<button class="mainButton record" href="#" type="submit">Record</button>
 	</form>
+</section>
 
 	<!-- Landslide form -->
 
-	<form name="landslide" id="landslide" title="Landslide" class="panel" action="online.html" method="get">
+<section id="landslide" data-title="Landslide" class="panel" data-onshow="initView.form()">
+	<form name="landslide" action="r.html" method="get">
 		<fieldset>
 			<div class="row">
 				<label for="landslide-site">Site</label>
@@ -293,7 +294,7 @@
 		<fieldset>
 			<div class="row">
 				<label>Landslide Type</label>
-				<ul class="inputs">
+				<ul class="inputs normal">
 					<li><input type="checkbox" name="type[]" id="landslide-slide" value="Slide"> <label for="landslide-slide">Slide</label></li>
 					<li><input type="checkbox" name="type[]" id="landslide-fall" value="Fall"> <label for="landslide-fall">Fall</label></li>
 					<li><input type="checkbox" name="type[]" id="landslide-flow" value="Flow"> <label for="landslide-flow">Flow</label></li>
@@ -305,7 +306,7 @@
 			</div>
 			<div class="row">
 				<label>Material Type</label>
-				<ul class="inputs">
+				<ul class="inputs normal">
 					<li><input type="checkbox" name="material[]" id="landslide-alluvium" value="Alluvium/soil/fill"> <label for="landslide-alluvium">Alluvium/soil/fill</label></li>
 					<li><input type="checkbox" name="material[]" id="landslide-sedimentary" value="Sedimentary rock"> <label for="landslide-sedimentary">Sedimentary rock</label></li>
 					<li><input type="checkbox" name="material[]" id="landslide-crystalline" value="Crystalline rock"> <label for="landslide-crystalline">Crystalline rock</label></li>
@@ -313,7 +314,7 @@
 			</div>
 			<div class="row">
 				<label>Area Affected (m<sup>2</sup>)</label>
-				<ul class="inputs">
+				<ul class="inputs normal">
 					<li><input type="checkbox" name="area[]" id="landslide-0" value="&lt;10"> <label for="landslide-0">&lt;10</label></li>
 					<li><input type="checkbox" name="area[]" id="landslide-10" value="10-100"> <label for="landslide-10">10-100</label></li>
 					<li><input type="checkbox" name="area[]" id="landslide-100" value="100-1000"> <label for="landslide-100">100-1000</label></li>
@@ -323,7 +324,7 @@
 			</div>
 			<div class="row">
 				<label>Vulnerable Facilities</label>
-				<ul class="inputs">
+				<ul class="inputs normal">
 					<li><input type="checkbox" name="facilities[]" id="landslide-buildings" value="Buildings"> <label for="landslide-buildings">Buildings</label></li>
 					<li><input type="checkbox" name="facilities[]" id="landslide-utilities" value="Utilities"> <label for="landslide-utilities">Utilities</label></li>
 					<li><input type="checkbox" name="facilities[]" id="landslide-roads" value="Roads"> <label for="landslide-roads">Roads</label></li>
@@ -338,12 +339,14 @@
 				<textarea rows="3" name="notes" id="landslide-notes"></textarea>
 			</div>
 		</fieldset>
-		<a class="whiteButton record" href="#">Record</a>
+		<button class="mainButton record" href="#" type="submit">Record</button>
 	</form>
+</section>
 
 	<!-- Tsunami form -->
 
-	<form name="tsunami" id="tsunami" title="Tsunami" class="panel" action="online.html" method="get">
+<section id="tsunami" data-title="Tsunami" class="panel" data-onshow="initView.form()">
+	<form name="tsunami" action="online.html" method="get">
 		<fieldset>
 			<div class="row">
 				<label for="tsunami-site">Site</label>
@@ -390,12 +393,14 @@
 				<textarea rows="3" name="notes" id="tsunami-notes"></textarea>
 			</div>
 		</fieldset>
-		<a class="whiteButton record" href="#">Record</a>
+		<button class="mainButton record" href="#" type="submit">Record</button>
 	</form>
+</section>
 
 	<!-- Lifelines form -->
 
-	<form name="lifelines" id="lifelines" title="Lifelines" class="panel" action="online.html" method="get">
+<section id="lifelines" data-title="Lifelines" class="panel" data-onshow="initView.form()">
+	<form name="lifelines" action="online.html" method="get">
 		<fieldset>
 			<div class="row">
 				<label for="lifelines-site">Site</label>
@@ -416,7 +421,7 @@
 		<fieldset>
 			<div class="row">
 				<label>Communication</label>
-				<ul class="inputs">
+				<ul class="inputs normal">
 					<li><input type="checkbox" name="communication[]" id="lifelines-phone" value="Telephone, Telegraph, Mobile Phone"> <label for="lifelines-phone">Telephone, Telegraph, Mobile Phone</label></li>
 					<li><input type="checkbox" name="communication[]" id="lifelines-media" value="Radio and Television"> <label for="lifelines-media">Radio and Television</label></li>
 					<li><input type="checkbox" name="communication[]" id="lifelines-print" value="Newspaper and Magazines"> <label for="lifelines-print">Newspaper and Magazines</label></li>
@@ -424,14 +429,14 @@
 			</div>
 			<div class="row">
 				<label>Electric Power Delivery</label>
-				<ul class="inputs">
+				<ul class="inputs normal">
 					<li><input type="checkbox" name="power[]" id="lifelines-lines" value="Transmission Lines"> <label for="lifelines-lines">Overhead and Buried Transmission Lines</label></li>
 					<li><input type="checkbox" name="power[]" id="lifelines-yards" value="Substation and Switchyards"> <label for="lifelines-yards">Substation and Switchyards</label></li>
 				</ul>
 			</div>
 			<div class="row">
 				<label>Other</label>
-				<ul class="inputs">
+				<ul class="inputs normal">
 					<li><input type="checkbox" name="other[]" id="lifelines-water" value="Water / Wastewater"> <label for="lifelines-water">Water / Wastewater </label></li>
 					<li><input type="checkbox" name="other[]" id="lifelines-gas" value="Gas and Fuel Lines"> <label for="lifelines-gas">Gas and Fuel Lines</label></li>
 					<li><input type="checkbox" name="other[]" id="lifelines-transportation" value="Transportation"> <label for="lifelines-transportation">Transportation </label></li>
@@ -462,7 +467,7 @@
 			</div>
 			<div class="row">
 				<label>Recommend further investigation?</label>
-				<ul class="inputs">
+				<ul class="inputs normal">
 					<li><input type="radio" name="investigation" id="lifelines-investigation-yes" value="yes" /> <label for="lifelines-investigation-yes">Yes</label></li>
 					<li><input type="radio" name="investigation" id="lifelines-investigation-no" value="no" /> <label for="lifelines-investigation-no">No</label></li>
 				</ul>
@@ -474,12 +479,14 @@
 				<textarea rows="3" name="notes" id="lifelines-notes"></textarea>
 			</div>
 		</fieldset>
-		<a class="whiteButton record" href="#">Record</a>
+		<button class="mainButton record" href="#" type="submit">Record</button>
 	</form>
+</section>
 
 	<!-- Building form -->
 
-	<form name="building" id="building" title="Building" class="panel" action="online.html" method="get">
+<section id="building" data-title="Building" class="panel" data-onshow="initView.form()">
+	<form name="building" action="online.html" method="get">
 		<fieldset>
 			<div class="row">
 				<label for="building-site">Site</label>
@@ -545,7 +552,7 @@
 			</div>
 			<div class="row">
 				<label>Recommend further investigation?</label>
-				<ul class="inputs">
+				<ul class="inputs normal">
 					<li><input type="radio" name="investigation" id="building-investigation-yes" value="yes" /> <label for="building-investigation-yes">Yes</label></li>
 					<li><input type="radio" name="investigation" id="building-investigation-no" value="no" /> <label for="building-investigation-no">No</label></li>
 				</ul>
@@ -557,12 +564,13 @@
 				<textarea rows="3" name="notes" id="building-notes"></textarea>
 			</div>
 		</fieldset>
-		<a class="whiteButton record" href="#">Record</a>
+		<button class="mainButton record" href="#" type="submit">Record</button>
 	</form>
+</section>
 
 	<!-- View Features -->
 
-	<div id="features" title="View Features" class="panel">
+	<section id="features" data-title="View Features" class="panel" data-onshow="initView.features()">
 		<p>Features recorded by you and your colleagues, updated in real-time.</p>
 		<p id="featurestatus"></p>
 		<h2>Maps</h2>
@@ -579,34 +587,34 @@
 			<li><a href="markers.json.php" id="download" target="_blank">GeoJSON file (All)</a></li>
 		</ul>
 		<p>Maps provided by <a href="http://open.mapquest.com" target="_blank">MapQuest</a>, <a href="http://www.openstreetmap.org/" target="_blank">OpenStreetMap</a> and contributors (portions courtesy NASA/JPL and USDA).</p>
-	</div>
+	</section>
 
 	<!-- Map of Features (set title via script to show Loading status during ajax request for map points) -->
 
-	<div id="map" title=""></div>
+	<section id="map" data-title=""></section>
 
 
 
-	<div id="photo" title="Photo"></div>
+	<section id="photo" data-title="Photo"></section>
 
 	<!-- Sync Records -->
 
-	<div id="sync" title="Sync Records" class="panel">
+	<section id="sync" data-title="Sync Records" class="panel" data-onshow="initView.sync()">
 		<p>Features you record while not connected to the internet are stored only on your device. They need to by &ldquo;synced&rdquo; to the server when your device is online.</p>
 		<p id="syncstatus"></p>
-		<ul id="syncresults" class="plaintext">
+		<ul id="syncresults" class="normal plaintext">
 			<li class="success"></li>
 			<li class="error"></li>
 		</ul>
-		<a class="whiteButton" id="syncbutton" target="_blank" href="#">Sync Records</a>
-	</div>
+		<button class="mainButton" id="syncbutton" href="#" type="submit">Sync Records</button>
+	</section>
 
 	<!-- Recording screen -->
 
-	<div title="Recording..." class="panel" id="results">
+	<section data-title="Recording..." class="panel" id="results">
 		<fieldset></fieldset>
 		<p></p>
-	</div>
+	</section>
 
 	<script src="lib/jquery-1.8.0.min.js"></script>
 
@@ -618,7 +626,6 @@
 	<!--<script src="https://getfirebug.com/firebug-lite.js"></script>-->
 
 	<script src="lib/moment.min.js"></script>
-	<!--<script src="lib/iui.onload.js"></script>-->
 	<script src="js/plugins.js"></script>
 	<script src="js/script.js"></script>
 

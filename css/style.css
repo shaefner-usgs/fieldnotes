@@ -1,31 +1,32 @@
-html, body {
-	height: 100%;
+/* override emy */
+body {
+	overflow-y: visible;
 }
-
-/* override default margins, shadows, size, etc */
-body > .panel > h2 {
-	margin: 15px 0 8px 10px;
-	text-shadow: rgba(255, 255, 255, .8) 0px 1px 0;
-	font-size: 1.2em;
+section.panel > h2, section.panel > form > h2  {
+	margin: 0 0 2px 6px;
+	padding-top: 10px;
 }
-.panel > p, ul.plaintext {
-	margin-right: 10px;
-	margin-left: 10px;
+section.panel > p, form > p, section ul.plaintext {
+	margin: .5em 6px;
 	color: #4D4D70;
-	text-align: left;
 	text-shadow: rgba(255, 255, 255, .8) 0px 1px 0;
-	font-size: 1.1em;
+	font-size: .9em;
 }
-.panel > ul > li a {
-	padding: 10px 0 10px 10px;
+.mainButton {
+	margin-left: 0;
+	margin-right: 0;
+}
+section ul.normal li {
+	display: block;
+	width: auto;
+	border: 0 !important;
+	background: none;
+	font-weight: normal;
 }
 
-/* override default link colors set in mobile bp (base.css) */
-.toolbar a, .toolbar a:hover {
-	color: #fff;
-}
-a.whiteButton, a.whiteButton:hover {
-	color: #000;
+/* grey out disabled links / buttons */
+button.disabled, button.disabled:active, a.disabled, a.disabled:active {
+	color: #999;
 }
 
 /* status text inside list link element */
@@ -39,30 +40,10 @@ li a:active span {
 	color: #fff;
 }
 
-/* status of writing to db */
-.success {
-	color: #008000;
-}
-.error {
-	color: #c00 !important;
-}
-
-.toolbar a, .toolbar a:hover {
-	color: #fff;
-}
 
 /* Map of features screen
 ----------------------------------------- */
 
-.toolbar {
-	position: relative;
-	z-index: 10;
-}
-#map {
-	z-index: 1;
-	margin-top: -45px;
-	height: 100%;
-}
 .leaflet-top {
 	top: 45px;
 }
@@ -71,7 +52,7 @@ li a:active span {
 	font-size: 1.3em;
 }
 .popup .time {
-	margin-top: -.8em;
+	margin-top: .25em;
 	color: #666;
 }
 .popup img {
@@ -93,14 +74,17 @@ li a:active span {
 	font-weight: bold;
 }
 
-ul#syncresults {
-	margin-top: 1em;
-}
 #syncresults li {
-	margin: 0;
 	padding: 0;
-	min-height: 1px; /* override iui */
-	text-align: left;
+	width: 100%;
+}
+
+/* status of writing to db */
+.success {
+	color: #008000 !important;
+}
+.error {
+	color: #c00 !important;
 }
 
 
@@ -108,54 +92,18 @@ ul#syncresults {
 ----------------------------------------- */
 
 /* checkbox / radio button lists */
-ul.inputs {
+fieldset ul.inputs {
 	overflow: auto;
 	margin: 0;
 	padding: 2.5em 1em .5em;
 }
-ul.inputs li {
+fieldset ul.inputs li {
 	float: left;
 	margin-right: 1.2em;
-	list-style: none;
 	line-height: 1.8;
 }
 
-/* grey out disabled links / buttons */
-a.disabled, a.disabled:active {
-	background-color: none !important;
-	color: #999 !important;
-}
-
-/* form control css (mostly adapted from previous version of iUI) */
-fieldset > .row > input,
-fieldset > .row > textarea,
-fieldset > .row > select {
-	margin: 0;
-	width: 100%;
-	height: inherit;
-	background: transparent;
-	font-size: .8em;
-	-webkit-appearance: none;
-}
-fieldset > .row > textarea,
-fieldset > .row > input:not([type|=radio]):not([type|=checkbox]) {
-	-webkit-box-sizing: border-box;
-	box-sizing: border-box;
-	margin-bottom: -4px;
-	padding: 12px 10px 14px 125px;
-	border: 0;
-	-webkit-border-radius: 0px;
-	resize: none;
-}
-fieldset > .row > select {
-	padding-right: 10px;
-	width: 12em;
-	height: 42px;
-	border: 0;
-	color: #425c8d;
-}
-
-/* override take photo (browse) file input */
+/* take photo (browse) file input */
 .photo {
 	position: relative;
 }
@@ -165,50 +113,55 @@ fieldset > .row > select {
 	right: 0;
 	opacity: 0;
 }
-.photo span {
-	margin: 9px 10px 14px 125px;
+.photo span.launchapp {
+	margin: 11px 0 0 125px;
 	padding: 0;
 }
 .photo p {
 	position: absolute;
-	top: 2px;
+	top: 8px;
 	left: 18em;
 	color: #333;
 	font-size: .75em;
 }
 
-/* current location info, map on form */
+/* location info and map */
 .location {
-	margin: .5em 0 .5em 14px;
+	margin: .5em 0 .75em 12px;
 	font-size: .9em;
-}
-.location p, #options {
-	margin: 0;
-	padding: 0;
 }
 .location .error {
 	margin-top: .5em;
 }
-#options {
-	overflow: auto;
-	margin: .25em 0;
-}
 #options li {
 	float: left;
 	margin-right: 1.2em;
-	list-style: none;
+}
+#options li a {
+	border: 0;
 }
 #options a, #options a:hover, #options a:active, #options a:visited {
-	background: none !important; /* override iui bg */
-	color: #00c !important;	 /* override iui active color */
-}
-#spoton-loc {
-	margin-top: 1em;
-	font-size: .8em;
+	color: #00c !important;	 /* override emy active color */
 }
 #locationmap img {
 	display: block;
-	padding: .5em 0;
+	margin-bottom: .5em;
+}
+
+/* override emy */
+section fieldset > .row > label {
+	max-width: none;
+}
+section fieldset > .row > select {
+	width: 12em;
+}
+section fieldset > .row > textarea {
+	min-height: 0;
+}
+section fieldset > .row > textarea, 
+section fieldset > .row > span, 
+section fieldset > .row > input:not([type|=radio]):not([type|=checkbox]) {
+	padding-left: 125px;
 }
 
 /* launch app buttons */
@@ -230,22 +183,4 @@ fieldset > .row > select {
 /* operator field gets moved in the DOM from 'home' screen to 'form' screen user is currently viewing */
 .hide, #hidden-fields, form #operator {
 	display: none;
-}
-
-#checkin > p {
-	margin-bottom: 1em;	 
-}
-
-/* results screen */
-#results p img {
-	margin-top: -5px;
-}
-#results span {
-	position: static;
-	display: block;
-	padding-bottom: 8px;
-}
-#results label {
-	overflow: hidden;
-	width: 90px;
 }

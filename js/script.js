@@ -1,5 +1,5 @@
 // Global vars
-var screen_id, show_map, db_errors, db_successes, map, cluster, layersControl, args_global = {};
+var show_map, db_errors, db_successes, map, cluster, layersControl, args_global = {};
 
 $(document).ready(function() {
 	resumeState();
@@ -18,33 +18,60 @@ $(document).ready(function() {
 	//MBP.preventZoom(); // Prevent iOS from zooming form fields onfocus
 	//MBP.scaleFix(); // Prevent scaling bug in iOS when rotating portrait to landscape
 
+	//emy.logging = true;
+
 });
 
 
-// Fire events when user loads a screen (called from onload.js)
-function onScreenLoad(screen) {
-	if (!screen) { // gets called sometimes when screen isn't set (e.g. Ajax form submission before new screen loads)
-		return false;
-	}
-	var records = getRecords(),
-		num_records = Object.keys(records).length;
-		//isAndroid = navigator.userAgent.toLowerCase().indexOf("android") > -1, //&& ua.indexOf("mobile")
-		//isIos = navigator.userAgent.toLowerCase().match(/(iphone|ipod|ipad)/)
-
-	screen_id = '#' + screen;
-	localStorage.screen = screen_id; // save screen user is viewing
-
-	// home screen
-	if (screen === 'home') {
+// Fire events when user loads a view (called from data-onshow in html)
+var initView = {
+	home: function() {
+		var screen_id = initView.setScreen(),
+			records = getRecords(),
+			num_records = Object.keys(records).length;
+		
 		$('#operator').appendTo('#user'); // move operator field back to home screen
 		$('#syncrecords a span').remove(); // remove any previous sync msg
 		$('#syncrecords a').append(' <span>' + num_records + ' record'.pluralize(num_records) + '</span>');
-	}
+	},
+	form: function() {
+		var screen_id = initView.setScreen();
 
-	// sync screen
-	else if (screen === 'sync') {
+		$('#operator, #hidden-fields').appendTo(screen_id + ' form'); // move operator and hidden fields to screen (form) user is viewing
+		$('#form-name').val(screen_id.substr(1)); // store form-name in hidden field
+		if (localStorage.spoton_site && !localStorage[screen_id.substr(1) + '-site']) { // set 'Site' field to Spoton site if user hasn't already overridden it
+			$(screen_id + '-site').val(localStorage.spoton_site);
+		}
+		if (navigator.onLine) { // show photo upload only if user online
+			$('.photo').css('display', 'block');
+		} else {
+			$('.photo').css('display', 'none');
+		}
+		getLocation(new Date().getTime());
+	},
+	features: function() {
+		var screen_id = initView.setScreen();
+
+		if (navigator.onLine) {
+			$('#features li a').removeClass('disabled').not('#download').removeAttr('target');
+			$('#featurestatus').html('');
+		} else { // disable buttons if offline
+			$('#features li a')
+				.addClass('disabled')
+				.attr('target', '_blank') // add target so that emy doesn't intercept link (so preventDefault works)
+				.click(function(e) {
+					e.preventDefault();
+				});
+			$('#featurestatus').html('<strong>Your device is currently offline.</strong> You must be connected to the internet to view maps and download data.');
+		}
+	},
+	sync: function() {
+		var screen_id = initView.setScreen(),
+			records = getRecords(),
+			num_records = Object.keys(records).length;
+
 		$('#syncstatus, #syncresults li').html('');
-
+		
 		// update button and status
 		if (num_records > 0) {
 			$('#syncbutton').html('Sync ' + num_records + ' ' + 'Record'.pluralize(num_records));
@@ -58,45 +85,18 @@ function onScreenLoad(screen) {
 			$('#syncbutton').addClass('disabled');
 			$('#syncstatus').html('You don&rsquo;t have any records stored on your device.');
 		}
+	},
+	photo: function() {
+		var screen_id = initView.setScreen();
+	},
+	setScreen: function() {
+		var elem = emy.getSelectedView(),
+			screen_id = '#' + elem.id;
+		
+		localStorage.screen = screen_id; // save screen user is viewing
+		return screen_id;
 	}
-
-	// view features screen
-	else if (screen === 'features') {
-		if (navigator.onLine) {
-			$('#features li a').removeClass('disabled').not('#download').removeAttr('target');
-			$('#featurestatus').html('');
-		} else { // disable buttons if offline
-			$('#features li a')
-				.addClass('disabled')
-				.attr('target', '_blank') // add target so that iui doesn't intercept link (so preventDefault works)
-				.click(function(e) {
-					e.preventDefault();
-				});
-			$('#featurestatus').html('<strong>Your device is currently offline.</strong> You must be connected to the internet to view maps and download data.');
-		}
-	}
-
-	// photo screen
-	else if (screen === 'photo') {
-		//$('#photo').html();
-	}
-
-	// form screen
-	else if ($(screen_id).get(0).tagName.toLowerCase() === 'form') {
-		$('#operator, #hidden-fields').appendTo(screen_id); // move operator and hidden fields to screen (form) user is viewing
-		$('#form-name').val(screen); // store form-name in hidden field
-		if (localStorage.spoton_site && !localStorage[screen + '-site']) { // set 'Site' field to Spoton site if user hasn't already overridden it
-			$('#' + screen + '-site').val(localStorage.spoton_site);
-		}
-		if (navigator.onLine) { // show photo upload only if user online
-			$('.photo').css('display', 'block');
-		} else {
-			$('.photo').css('display', 'none');
-		}
-		getLocation(new Date().getTime());
-	}
-
-}
+};
 
 
 // onClick event handlers
@@ -153,7 +153,7 @@ function initClickHandlers() {
 			title = $(this).text();
 
 		// set title (set it directly on h1 tag b/c it doesn't register if you set it on the panel's title attr)
-		$('#pageTitle').text('Loading...');
+		$('#viewTitle').text('Loading...');
 
 		// remove previously viewed markers
 		if (cluster) {
@@ -168,7 +168,7 @@ function initClickHandlers() {
 			jsonpCallback: 'addFeatureLayer',
 			timeout: 10000,
 			success: function() {
-				$('#pageTitle').text(title); // update title
+				$('#viewTitle').text(title); // update title
 			}
 		});
 	});
@@ -198,7 +198,7 @@ function initOperatorField() {
 
 	function deActivate() {
 		$('#home li a').addClass('disabled')
-			.attr('target', '_blank') // add target so that iui doesn't intercept link (so preventDefault works)
+			.attr('target', '_blank') // add target so that emy doesn't intercept link (so preventDefault works)
 			.click(function(e) {
 				e.preventDefault();
 			});
@@ -242,8 +242,8 @@ function initMap() {
 	scaleControl = new L.Control.Scale();
 	map.addControl(scaleControl).addControl(layersControl);
 
-	// don't want iui to intercept links
-	$('.leaflet-control-container a').addClass('nofollow');
+	// don't want emy to intercept zoom buttons
+	$('.leaflet-control-container a').attr('target', '_blank');
 
 }
 
@@ -310,11 +310,13 @@ function getLocation(timestamp) {
 	if (!Modernizr.geolocation) {
 		return false;
 	}
+	var screen_id = localStorage.screen;
 
 	// disable submit button until device location determined
-	$('.record').addClass('disabled').attr('target', '_blank').removeAttr('type'); // add target="_blank" so that iui doesn't intercept links; remove type="submit" to disable form submitting
-
-	$('.location').remove(); // remove any previous location info / map
+	$('.record').addClass('disabled');
+	
+	// remove any previous location info / map
+	$('.location').remove();
 
 	$(screen_id + '-location')
 		.after('<div class="location"><p id="coords">Locating&hellip;</p></div>');
@@ -354,7 +356,7 @@ function setLocation(_position) {
 	displayLocation(lat, lon, timestamp);
 
 	// activate submit button
-	$('.record').removeClass('disabled').attr('type', 'submit').removeAttr('target');
+	$('.record').removeClass('disabled');
 }
 
 
@@ -374,10 +376,10 @@ function displayLocation(lat, lon, timestamp) {
 
 	$('#coords')
 		.html(coords)
-		.after('<ul id="options"></ul>');
+		.after('<ul id="options" class="normal"></ul>');
 
 	if (!spoton) {
-		$('#options').append('<li><a href="#" target="_blank" id="refresh">Refresh</a></li>'); // refresh link (add target="_blank" so that iui doesn't intercept links)
+		$('#options').append('<li><a href="#" target="_blank" id="refresh">Refresh</a></li>'); // refresh link (add target="_blank" so that emy doesn't intercept links)
 	}
 
 	// display map if user online
@@ -385,7 +387,7 @@ function displayLocation(lat, lon, timestamp) {
 		var map_url = 'http://api.tiles.mapbox.com/v3/shaefner.map-8sg8c9nv/pin-m-star+cc3311(' + lon + ',' + lat + ')/' + lon + ',' + lat + ',13/544x544.jpg',
 			map_app = 'http://maps.apple.com/?q=' + lat + ',' + lon + '&t=m&z=13';
 
-		$('#options').append('<li><a href="#" target="_blank" id="showmap">Hide Map</a></li>'); // map toggle (add target="_blank" so that iui doesn't intercept links)
+		$('#options').append('<li><a href="#" target="_blank" id="showmap">Hide Map</a></li>'); // map toggle (add target="_blank" so that emy doesn't intercept links)
 		$('#options').after(
 			'<div id="locationmap">' + // map
 				'<img src="' + map_url + '" width="272" height="272" alt="map showing current location">' +
@@ -410,7 +412,7 @@ function locationError(_error) {
 
 	$('#coords').append(
 		'<p class="error">' + errors[_error.code] + '</p>' +
-		'<ul id="options"><li><a href="#" target="_blank" id="refresh">Try again</a></li></ul>' // add target="_blank" so that iui doesn't intercept links
+		'<ul id="options"><li><a href="#" target="_blank" id="refresh">Try again</a></li></ul>' // add target="_blank" so that emy doesn't intercept links
 	);
 
 	// show spoton location if available instead of error message
@@ -419,18 +421,19 @@ function locationError(_error) {
 	}
 
 	// activate submit button
-	$('.record').removeClass('disabled').attr('type', 'submit').removeAttr('target');
+	$('.record').removeClass('disabled');
 }
 
 
 // Store record in browser's localStorage; called from on(off)line.html
 function storeRecord(querystring) {
 	if (!Modernizr.localstorage) {
-		$('#results').attr('title', 'Error').html('<p>Can&rsquo;t store record. Your device doesn&rsquo;t support storage.</p>');
+		$('#results').attr('data-title', 'Error').html('<p>Can&rsquo;t store record. Your device doesn&rsquo;t support storage.</p>');
 		return false;
 	}
 	var key = moment().valueOf(), // milliseconds since Unix epoch
-		record = querystring;
+		record = querystring,
+		screen_id = localStorage.screen;
 
 	if (localStorage.spoton) { // add spoton info if it's there
 		record += localStorage.spoton;
@@ -457,11 +460,13 @@ function storeRecord(querystring) {
 
 // Insert record into db
 function insertRecord(key, querystring) {
+	var screen_id = localStorage.screen;
+	
 	$.get('insert.php?' + querystring, function(error) {
 		if (screen_id === '#sync') { // sync screen
 			if (error) {
 				db_errors ++;
-				$('#sync .error').html(db_errors + ' record'.pluralize(db_errors) + ' failed to sync ' + error);
+				$('#sync .error').html(db_errors + ' record'.pluralize(db_errors) + ' failed to sync: ' + error);
 			} else {
 				db_successes ++;
 				$('#sync .success').html(db_successes + ' record'.pluralize(db_successes) + ' synced');
@@ -579,7 +584,7 @@ function returnHtml() {
 		return_html += row;
 	}
 	$('#results fieldset').html(return_html);
-	$('#results').attr('title', 'Recorded');
+	$('#results').attr('data-title', 'Recorded');
 }
 
 
@@ -627,19 +632,18 @@ function resumeState() {
 	if (!Modernizr.localstorage) {
 		return false;
 	}
-	var elem_id, hashtag, url, is_checked;
+	var elem_id, hashtag, url, is_checked,
+		screen_id = localStorage.screen;
 
 	show_map = parseInt(localStorage.show_map, 10);
-	screen_id = localStorage.screen;
 
 	// show appropriate screen
 	if (screen_id) {
-		if (screen_id === '#map') {
-			screen_id = '#features'; // markers only loaded when user clicks on a link to a map, so don't go directly to map
+		if (screen_id === '#home') {
+			initView.home();
 		}
-		hashtag = screen_id.replace('#', '#_');
 		if (!window.location.hash) {
-			url = 'http://' + window.location.host + window.location.pathname + hashtag;
+			url = 'http://' + window.location.host + window.location.pathname + screen_id;
 			window.location.replace(url);
 		}
 	}

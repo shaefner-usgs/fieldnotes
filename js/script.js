@@ -53,7 +53,7 @@ var initView = {
 		var screen_id = initView.setScreen();
 
 		if (navigator.onLine) {
-			$('#features li a').removeClass('disabled').not('#download').removeAttr('target');
+			$('#features li a').removeClass('disabled').not('.download').removeAttr('target');
 			$('#featurestatus').html('');
 		} else { // disable buttons if offline
 			$('#features li a')

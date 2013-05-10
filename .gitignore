@@ -1,1 +1,4 @@
-uploads/
+error.log
+#track uploads directory (using empty .gitignore file inside dir), but not files within it
+uploads/.*
+!uploads/.gitignore

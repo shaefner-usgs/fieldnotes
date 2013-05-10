@@ -29,7 +29,7 @@ var initView = {
 			records = getRecords(),
 			num_records = Object.keys(records).length;
 		
-		$('#operator').appendTo('#user'); // move operator field back to home screen
+		$('#operator').appendTo('#user').prop('type', 'email'); // move operator field back to home screen and change back to email
 		$('#syncrecords a span').remove(); // remove any previous sync msg
 		$('#syncrecords a').append(' <span>' + num_records + ' record'.pluralize(num_records) + '</span>');
 	},
@@ -37,6 +37,7 @@ var initView = {
 		var screen_id = initView.setScreen();
 
 		$('#operator, #hidden-fields').appendTo(screen_id + ' form'); // move operator and hidden fields to screen (form) user is viewing
+		$('#operator').prop('type', 'text'); // change to type text to prevent html5 validation from failing on non-email (not enforced)
 		$('#form-name').val(screen_id.substr(1)); // store form-name in hidden field
 		if (localStorage.spoton_site && !localStorage[screen_id.substr(1) + '-site']) { // set 'Site' field to Spoton site if user hasn't already overridden it
 			$(screen_id + '-site').val(localStorage.spoton_site);

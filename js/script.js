@@ -2,24 +2,23 @@
 var show_map, db_errors, db_successes, map, cluster, layersControl, args_global = {};
 
 $(document).ready(function() {
+	//emy.logging = true;
+
 	resumeState();
 	initSaveState(); // initialize form elements for autosave
 	initClickHandlers();
 	initOperatorField();
 	initMap();
 
-	// enable 'Notes' inputs to automatically expand
-	MBP.autogrow(document.getElementById('checkin-notes'));
-	MBP.autogrow(document.getElementById('rupture-notes'));
-	MBP.autogrow(document.getElementById('liquefaction-notes'));
-	MBP.autogrow(document.getElementById('landslide-notes'));
-
+	// enable textarea inputs to automatically expand
+	var elems = document.getElementsByTagName('textarea');
+	for (var i = 0, len = elems.length; i < len; i ++) {
+		MBP.autogrow(elems[i]);
+	}
+	
 	// the following are commented out b/c we are disabling zooming in via HTML meta tag
 	//MBP.preventZoom(); // Prevent iOS from zooming form fields onfocus
 	//MBP.scaleFix(); // Prevent scaling bug in iOS when rotating portrait to landscape
-
-	//emy.logging = true;
-
 });
 
 

@@ -59,7 +59,7 @@ var initView = {
 			$('#features li a')
 				.addClass('disabled')
 				.attr('target', '_blank') // add target so that emy doesn't intercept link (so preventDefault works)
-				.click(function(e) {
+				.on('click', function(e) {
 					e.preventDefault();
 				});
 			$('#featurestatus').html('<strong>Your device is currently offline.</strong> You must be connected to the internet to view maps and download data.');
@@ -200,7 +200,7 @@ function initOperatorField() {
 	function deActivate() {
 		$('#home li a').addClass('disabled')
 			.attr('target', '_blank') // add target so that emy doesn't intercept link (so preventDefault works)
-			.click(function(e) {
+			.on('click', function(e) {
 				e.preventDefault();
 			});
 	}

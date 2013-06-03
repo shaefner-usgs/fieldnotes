@@ -153,6 +153,7 @@ function createJsonFeed($db, $tables, $params) {
 					$value .= ' UTC'; // add UTC timezone string to recorded / snyced fields
 				}
 				if ($key === 'photo') {
+					$key = 'attachment'; // Jim Morentz asked for the 'photo' field to be set to 'attachment' in the json feed
 					if ($value) {
 						//$value = sprintf ('http://%s%s/uploads/%s', $_SERVER['SERVER_NAME'], $_SERVER['SCRIPT_NAME'], $value);
 					}

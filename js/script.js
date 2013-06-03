@@ -413,7 +413,7 @@ function locationError(_error) {
 
 	$('#coords').append(
 		'<p class="error">' + errors[_error.code] + '</p>' +
-		'<ul id="options"><li><a href="#" target="_blank" id="refresh">Try again</a></li></ul>' // add target="_blank" so that emy doesn't intercept links
+		'<ul id="options" class="normal"><li><a href="#" target="_blank" id="refresh">Try again</a></li></ul>' // add target="_blank" so that emy doesn't intercept links
 	);
 
 	// show spoton location if available instead of error message

@@ -91,6 +91,11 @@ li a:active span {
 /* Form screens
 ----------------------------------------- */
 
+/* explicitly set fonts (not inheriting for some reason) */
+input, textarea {
+	font-family: inherit;
+}
+
 /* checkbox / radio button lists */
 fieldset ul.inputs {
 	overflow: auto;

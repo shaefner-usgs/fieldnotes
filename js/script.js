@@ -133,12 +133,9 @@ function initClickHandlers() {
 
 	// echo photo
 	$('[name="photo"]').bind('change', function() {
-		var id = $(this).attr('id'),
-			//path = $(this).attr('value'),
-			//photo = path.substr(path.lastIndexOf('\\') + 1),
-			file = $('#' + id).get(0).files[0];
-		$('#' + id).parent().find('p').remove(); // remove photo previously echo'd
-		$('#' + id).after('<p>' + file.name + ' (' + Math.round(file.size * 10 / 1000) / 10 + ' kB)</p>'); // echo photo user selected
+		var file = $(this).get(0).files[0];
+		$(this).parent().find('p').remove(); // remove photo previously echo'd
+		$(this).after('<p>' + file.name + ' (' + Math.round(file.size * 10 / 1000) / 10 + ' kB)</p>'); // echo photo user selected
 	});
 
 	// start sync

@@ -662,7 +662,7 @@ function resumeState() {
 			} else {
 				$(this).attr('checked', false);
 			}
-		} else { // text, number, email, file (clears out previously entered file, but doesn't populate file input on load), etc.
+		} else if ($(this).attr('type') !== 'file') { // text, number, email, etc. (can't manipulate file obj)
 			$(this).val(localStorage[elem_id]);
 		}
 	});

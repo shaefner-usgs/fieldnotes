@@ -1,5 +1,15 @@
 master
 
+* bugfix: check if uploaded file exists before outputing in json feed
+* bugfix: ignore file upload field when resuming state
+* changed 'photo' field to 'attachment' for Jim Morentz
+* html5 validation now works b/c app uses <button> instead of <a> (emy)
+  - dynamically change operator field to text so email type not enforced but still swaps email keyboard for input
+* changed textarea autogrow to match all textarea inputs instead of by 'id'
+* bugfix: change download id to class since there were more than 1
+* bugfix: add 'default' text to sync button if no records (to update it after prev sync)
+* cleanup: remove record <section> in html (not needed because it's in online.html when form submitted)
+* switch to emy library
 * updated iui (0.4.0)
 * changed css theme to built-in gradients instead of images (and deleted unused img's in cache manifest file)
 * changed redirect in spoton.html to relative uri

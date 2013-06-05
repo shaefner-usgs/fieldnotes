@@ -22,14 +22,13 @@ $params = parseGetVals();
 $json_array = createJsonFeed($db, $tables, $params);
 
 // Create json object from array and display
-$json = json_encode($json_array);
+$json = str_replace('\/','/',json_encode($json_array));
 if ($params['callback']) {
 	printf ('%s(%s);', $params['callback'], $json);
 } else { // no callback param, assume download option
 	header('Content-Disposition: attachment; filename="fieldnotes.json"');
 	print $json;
 }
-
 
 
 
@@ -155,10 +154,12 @@ function createJsonFeed($db, $tables, $params) {
 				if ($key === 'photo') {
 					$key = 'attachment'; // Jim Morentz asked for the 'photo' field to be set to 'attachment' in the json feed
 					if ($value) {
-						if (!file_exists("uploads/$value")) {
+						$path = pathinfo($_SERVER['REQUEST_URI'], PATHINFO_DIRNAME);
+						if (file_exists("uploads/$value")) {
+							$value = sprintf ('http://%s%s/uploads/%s', $_SERVER['SERVER_NAME'], $path, $value);
+						} else {
 							$value = '';
 						}
-						//$value = sprintf ('http://%s%s/uploads/%s', $_SERVER['SERVER_NAME'], $_SERVER['SCRIPT_NAME'], $value);
 					}
 				}
 				$properties[$key] = null2string($value);

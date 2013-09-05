@@ -15,7 +15,7 @@ $tables = array(
 	'rupture' => 'Fault Rupture', 
 	'tsunami' => 'Tsunami',
 	'lifelines' => 'Lifelines',
-	'building' => 'Buildings'
+	'building' => 'Building'
 );
 
 $params = parseGetVals();
@@ -211,7 +211,7 @@ function sanitize($param) {
 
 // convert null values from MySQL to empty strings in JSON
 function null2string($value) {
-	if($value === null){
+	if ($value === null) {
 		$value = '';
 	}
 	return $value;

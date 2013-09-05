@@ -18,6 +18,7 @@ master
 * organized libraries into lib folder
 * bugfix: location description echoed on form submit
 * "friendly" names on form submit automatically truncate array notation '[]'
+* add kml feed downloads
 
 v2.2
 

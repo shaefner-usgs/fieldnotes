@@ -32,7 +32,16 @@ if ($params['callback']) {
 
 
 
-// Parse input parameters that control feed display
+/**
+ * Parse input parameters that control feed display
+ * api allows several parameters to be set:
+ *
+ * 1. period=hour, period=day, etc.
+ * 2. after=1377541566 (unix time stamp)
+ * 3. before=1377541566 (unix time stamp)
+ * 4. between=after,before (where after and before are unix time stamps)
+ */
+
 function parseGetVals() {
 	$params = array();
 	$periods = array(

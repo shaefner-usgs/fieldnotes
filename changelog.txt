@@ -19,6 +19,7 @@ master
 * bugfix: location description echoed on form submit
 * "friendly" names on form submit automatically truncate array notation '[]'
 * add kml feed downloads
+* bugfix: renamed feature.properties.photo to feature.properties.attachment in script.js (to match json feed)
 
 v2.2
 

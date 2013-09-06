@@ -273,11 +273,11 @@ function addFeatureLayer (markers) {
 
 			onEachFeature: function (feature, layer) {
 				if (feature.properties) {
-					var img_base = feature.properties.photo.substr(0, feature.properties.photo.lastIndexOf('.')),
-						img_ext = feature.properties.photo.substr(feature.properties.photo.lastIndexOf('.') + 1),
+					var img_base = feature.properties.attachment.substr(0, feature.properties.attachment.lastIndexOf('.')),
+						img_ext = feature.properties.attachment.substr(feature.properties.attachment.lastIndexOf('.') + 1),
 						//img_tag = '<img src="' + img_base + '.' + img_ext + '" />',
 						html = '<div class="popup"><h1>' + feature.properties.form + '</h1><p class="time">' + feature.properties.timestamp + ' ' + feature.properties.timezone + '</p><p>' + feature.properties.site + ' (' + feature.properties.operator + ')</p>';
-					if (feature.properties.photo) {
+					if (feature.properties.attachment) {
 						//html += '<a href="#photo" data-fieldnotes-src="' + img_base + '.' + img_ext + '">';
 						html += '<img src="uploads/' + img_base + '-tn.png" height="125" alt="site photo" />';
 						//html += '</a>';

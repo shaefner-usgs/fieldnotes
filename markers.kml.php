@@ -72,8 +72,6 @@ function parseGetVals() {
 
 // Create kml file
 function createKmlFeed($db, $tables, $params) {
-
-	date_default_timezone_set('America/Los_Angeles'); // set to UTC above; need to change it to determine tz accurately
 	
 	// KML header
 	include_once $_SERVER['DOCUMENT_ROOT'] . '/sandbox/git/fieldnotes/header.kml.php';
@@ -100,6 +98,7 @@ function createKmlFeed($db, $tables, $params) {
 			$table = '<table>';
 
 			// get timezone where user submitted form
+			date_default_timezone_set('America/Los_Angeles'); // set to UTC above; need to change it to determine tz accurately
 			$timezone = '';
 			$timestamp = '';
 			if ($row_rsFeatures['gmt_offset']) {

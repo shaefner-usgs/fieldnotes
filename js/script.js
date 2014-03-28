@@ -161,7 +161,7 @@ function initClickHandlers() {
 
 		// get selected markers
 		$.ajax({
-			url: 'markers.json.php?period=' + period,
+			url: 'features.json.php?period=' + period,
 			dataType: 'jsonp',
 			jsonpCallback: 'addFeatureLayer',
 			timeout: 10000,

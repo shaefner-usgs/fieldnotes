@@ -15,7 +15,8 @@ $tables = array(
 	'rupture' => 'Fault Rupture', 
 	'tsunami' => 'Tsunami',
 	'lifelines' => 'Lifelines',
-	'building' => 'Building'
+	'building' => 'Building',
+	'general' => 'General'
 );
 
 $params = parseGetVals();

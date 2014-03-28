@@ -90,6 +90,7 @@
 			<li><a href="#tsunami">Tsunami</a></li>
 			<li><a href="#lifelines">Lifelines</a></li>
 			<li><a href="#building">Building</a></li>
+			<li><a href="#general">General</a></li>
 		</ul>
 
 		<h2>Maps and Downloads</h2>
@@ -568,6 +569,36 @@
 		</form>
 	</section>
 
+	<!-- General form -->
+
+	<section id="general" data-title="General" class="panel" data-onshow="initView.form()">
+		<form name="general" action="online.html" method="get">
+			<fieldset>
+				<div class="row">
+					<label for="general-site">Site</label>
+					<input type="text" name="site" id="general-site" placeholder="site name" autocapitalize="off" autocorrect="off" required="required">
+				</div>
+				<div class="row photo">
+					<label for="general-photo">Photo</label>
+					<span class="launchapp">Choose...</span>
+					<input type="hidden" name="MAX_FILE_SIZE" value="2000000" />
+					<input type="file" name="photo" id="general-photo" accept="image/*" />
+				</div>
+				<div class="row">
+					<label for="general-location">Location</label>
+					<input type="text" name="location-description" id="general-location" placeholder="description">
+				</div>
+			</fieldset>
+			<fieldset>
+				<div class="row">
+					<label for="general-notes">Notes</label>
+					<textarea rows="5" name="notes" id="general-notes"></textarea>
+				</div>
+			</fieldset>
+			<button class="mainButton record" href="#" type="submit">Record</button>
+		</form>
+	</section>
+	
 	<!-- View Features -->
 
 	<section id="features" data-title="View Features" class="panel" data-onshow="initView.features()">

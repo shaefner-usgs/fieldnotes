@@ -1,5 +1,5 @@
 // Global vars
-var show_map, db_errors, db_successes, map, cluster, layersControl, args_global = {};
+var show_map, db_errors, db_successes, map, cluster, marker_layers = {}, layersControl, args_global = {};
 
 $(document).ready(function() {
 	//emy.logging = true;
@@ -156,10 +156,13 @@ function initClickHandlers() {
 		// remove previously viewed markers
 		if (cluster) {
 			map.removeLayer(cluster);
-			layersControl.removeLayer(cluster);
+			layersControl.removeLayer(marker_layers.pseudo_layer1); // features
+		}
+		if (marker_layers.pseudo_layer2) {
+			layersControl.removeLayer(marker_layers.pseudo_layer2); // check-ins
 		}
 
-		// get selected markers
+		// get selected features
 		$.ajax({
 			url: 'features.json.php?period=' + period,
 			dataType: 'jsonp',
@@ -168,6 +171,14 @@ function initClickHandlers() {
 			success: function() {
 				$('#viewTitle').text(title); // update title
 			}
+		});
+
+		// get selected check-ins
+		$.ajax({
+			url: 'checkins.json.php?period=' + period,
+			dataType: 'jsonp',
+			jsonpCallback: 'addCheckinLayer',
+			timeout: 10000
 		});
 	});
 
@@ -243,35 +254,39 @@ function initMap() {
 	// don't want emy to intercept zoom buttons
 	$('.leaflet-control-container a').attr('target', '_blank');
 
+	map.on('overlayadd', function(e) {
+		var layer_name = e.name;
+		cluster.addLayer(marker_layers[layer_name]);
+	});
+	map.on('overlayremove', function(e) {
+		var layer_name = e.name;
+		cluster.removeLayer(marker_layers[layer_name]);
+	});
 }
 
 
-// Add selected markers to map
-function addFeatureLayer (markers) {
-
+// Add selected features to map
+function addFeatureLayer(markers) {
 	// close any previously opened popups
 	map.closePopup();
 
-	// update map container - iUI framework confuses leaflet map and this forces map to display correctly
+	// update map container - emy framework confuses leaflet map and this forces map to display correctly
 	map.invalidateSize();
-
-	cluster = new L.MarkerClusterGroup({showCoverageOnHover: false, maxClusterRadius: 20, spiderfyOnMaxZoom: true});
-
+	
 	// plot selected markers
 	if (markers) {
 		var blue = L.icon({
-			iconUrl: 'img/marker-blue.png',
-			iconSize: [29, 38],
-			iconAnchor: [14, 32],
-			popupAnchor: [1, -26]
+			iconUrl: 'img/pin-m-feature+00c.png',
+			iconSize: [30, 70],
+			iconAnchor: [15, 34],
+			popupAnchor: [1, -30]
 		}),
-		geojson = new L.GeoJSON(markers, {
-
-			pointToLayer: function (feature, latlng) {
+		layer_name = 'Features';
+		marker_layers[layer_name] = new L.GeoJSON(markers, {
+			pointToLayer: function(feature, latlng) {
 				return new L.Marker(latlng, { icon: blue });
 			},
-
-			onEachFeature: function (feature, layer) {
+			onEachFeature: function(feature, layer) {
 				if (feature.properties) {
 					var img_base = feature.properties.attachment.substr(0, feature.properties.attachment.lastIndexOf('.')),
 						img_ext = feature.properties.attachment.substr(feature.properties.attachment.lastIndexOf('.') + 1),
@@ -290,16 +305,50 @@ function addFeatureLayer (markers) {
 			}
 		});
 		
-		cluster.addLayer(geojson);
-		map.addLayer(cluster);
-		
-		map.fitBounds(geojson.getBounds());
-		layersControl.addOverlay(cluster, 'Features');
+		// don't want to "tie" features layer to layers control b/c both features and check-ins are contained in the same cluster but controlled as separate layers
+		// (the layers are manually toggled via an event listener in initMap)
+		// add a "pseudo" layer to map (and reference it in layers control) so that the "Features" layer check box is toggled on
+		marker_layers.pseudo_layer1 = L.layerGroup();
+		map.addLayer(marker_layers.pseudo_layer1);
+		layersControl.addOverlay(marker_layers.pseudo_layer1, 'Features');
 
+		cluster = new L.MarkerClusterGroup({showCoverageOnHover: false, maxClusterRadius: 20, spiderfyOnMaxZoom: true});
+		map.addLayer(cluster);
+		cluster.addLayer(marker_layers[layer_name]);
+		map.fitBounds(cluster.getBounds());
 	} else { // no markers, reset map view
 		map.locate({setView: true, maxZoom: 6});
 	}
+}
 
+
+// Add selected check-ins to map
+function addCheckinLayer(markers) {
+	if (markers) {
+		var grey = L.icon({
+			iconUrl: 'img/pin-m-checkin+999.png',
+			iconSize: [30, 70],
+			iconAnchor: [15, 34],
+			popupAnchor: [1, -30]
+		}),
+		layer_name = 'Check-ins';
+		marker_layers[layer_name] = new L.GeoJSON(markers, {
+			pointToLayer: function(feature, latlng) {
+				return new L.Marker(latlng, { icon: grey });
+			},
+			onEachFeature: function(feature, layer) {
+				if (feature.properties) {
+					var html = '<div class="popup"><h1>Check-in</h1><p class="time">' + feature.properties.timestamp + ' ' + feature.properties.timezone + '</p><p>' + feature.properties.site + ' (' + feature.properties.operator + ')</p>';
+					if (feature.properties.notes) {
+						html += '<p>' + feature.properties.notes + '</p>';
+					}
+					layer.bindPopup(html, {maxWidth: '265', closeButton: false, autoPanPadding: new L.Point(5, 50)});
+				}
+			}
+		});
+		marker_layers.pseudo_layer2 = L.layerGroup();
+		layersControl.addOverlay(marker_layers.pseudo_layer2, 'Check-ins');
+	}
 }
 
 

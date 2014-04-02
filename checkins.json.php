@@ -31,6 +31,7 @@ if ($params['callback']) {
  * 2. after=1377541566 (unix time stamp)
  * 3. before=1377541566 (unix time stamp)
  * 4. between=after,before (where after and before are unix time stamps)
+ * 5. operator=email@domain.com
  */
 
 function parseGetVals() {
@@ -44,7 +45,7 @@ function parseGetVals() {
 	);
 	$before = time();
 	$after = strtotime('2011-01-01');
-	$allowed = '/^[\w,]+$/'; // Sanitize input parameter (alphanumerics only)
+	$allowed = '/^[\w,\@\.]+$/'; // Sanitize input parameter (alphanumerics + a few others only)
 	
 	if (isSet($_GET['before']) && (preg_match($allowed, $_GET['before']))) {
 		$before = $_GET['before'];
@@ -58,6 +59,7 @@ function parseGetVals() {
 	
 	$params['before_sql'] = date('Y-m-d H:i:s', $before);
 	$params['after_sql'] = date('Y-m-d H:i:s', $after);
+	$params['operator'] = '%'; // mysql wildcard
 	
 	if (isSet($_GET['period']) && (preg_match($allowed, $_GET['period']))) {
 		$period = $_GET['period'];
@@ -65,6 +67,9 @@ function parseGetVals() {
 	}
 	if (isSet($_GET['callback']) && (preg_match($allowed, $_GET['callback']))) {
 		$params['callback'] = $_GET['callback'];
+	}
+	if (isSet($_GET['operator']) && (preg_match($allowed, $_GET['operator']))) {
+		$params['operator'] = $_GET['operator'];
 	}
 	
 	return $params;
@@ -80,8 +85,9 @@ function createJsonFeed($db, $tables, $params) {
 		LEFT JOIN spoton ON spoton_id = spoton.id 
 		WHERE (recorded BETWEEN '%s' AND '%s' OR synced BETWEEN '%s' AND '%s') 
 			AND ((location.lat != '' AND location.lon != '') OR (spoton.latitude != '' AND spoton.longitude != ''))
+			AND operator LIKE '%s'
 		ORDER BY recorded ASC;", 
-		$params['after_sql'], $params['before_sql'], $params['after_sql'], $params['before_sql']);
+		$params['after_sql'], $params['before_sql'], $params['after_sql'], $params['before_sql'], $params['operator']);
 
 	$rsCheckins = mysql_query($query_rsCheckins, $db) or die(mysql_error());
 

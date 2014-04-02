@@ -148,7 +148,12 @@ function initClickHandlers() {
 	// display selected set of markers
 	$('#features').on('click', '#periods a', function(e) {
 		var period = $(this).attr('id') || '',
+			qs = 'period=' + period,
 			title = $(this).text();
+
+		if ($('#onlymine').prop('checked')) {
+			qs += '&operator=' + $('#operator').val();
+		}
 
 		// set title (set it directly on h1 tag b/c it doesn't register if you set it on the panel's title attr)
 		$('#viewTitle').text('Loading...');
@@ -163,8 +168,9 @@ function initClickHandlers() {
 		}
 
 		// get selected features
+		
 		$.ajax({
-			url: 'features.json.php?period=' + period,
+			url: 'features.json.php?' + qs,
 			dataType: 'jsonp',
 			jsonpCallback: 'addFeatureLayer',
 			timeout: 10000,
@@ -175,7 +181,7 @@ function initClickHandlers() {
 
 		// get selected check-ins
 		$.ajax({
-			url: 'checkins.json.php?period=' + period,
+			url: 'checkins.json.php?' + qs,
 			dataType: 'jsonp',
 			jsonpCallback: 'addCheckinLayer',
 			timeout: 10000

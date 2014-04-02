@@ -288,13 +288,12 @@ function addFeatureLayer(markers) {
 			},
 			onEachFeature: function(feature, layer) {
 				if (feature.properties) {
-					var img_base = feature.properties.attachment.substr(0, feature.properties.attachment.lastIndexOf('.')),
-						img_ext = feature.properties.attachment.substr(feature.properties.attachment.lastIndexOf('.') + 1),
-						//img_tag = '<img src="' + img_base + '.' + img_ext + '" />',
+					var img = feature.properties.attachment.replace(/\.(jpg|jpeg|gif|png)$/i, "-tn\.png"), // use thumbnail photo created during upload
+						//img_tag = '<img src="' + img + '" />',
 						html = '<div class="popup"><h1>' + feature.properties.form + '</h1><p class="time">' + feature.properties.timestamp + ' ' + feature.properties.timezone + '</p><p>' + feature.properties.site + ' (' + feature.properties.operator + ')</p>';
 					if (feature.properties.attachment) {
-						//html += '<a href="#photo" data-fieldnotes-src="' + img_base + '.' + img_ext + '">';
-						html += '<img src="uploads/' + img_base + '-tn.png" height="125" alt="site photo" />';
+						//html += '<a href="#photo" data-fieldnotes-src="' + feature.properties.attachment + '">';
+						html += '<img src="' + img + '" height="125" alt="site photo" />';
 						//html += '</a>';
 					}
 					if (feature.properties.notes) {

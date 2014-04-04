@@ -8,8 +8,11 @@ online.html offline.html
 
 # Resources / sites that require user to be online
 NETWORK:
+checkins.json.php
+features.json.php
+features.kml.php
+header.kml.php
 insert.php
-markers.json.php
 upload.php
 *
 
@@ -21,8 +24,9 @@ img/apple-touch-startup-640x1096.jpg
 img/apple-touch-icon-152x152-precomposed.png
 img/error.png
 img/loading.gif
-img/marker-blue.png
 img/ok.png
+img/pin-m-checkin+999.png
+img/pin-m-feature+00c.png
 js/plugins.js
 js/script.js
 lib/emy/emy.css
@@ -34,15 +38,13 @@ lib/emy/themes/ios/listArrow.png
 lib/emy/themes/ios/loading.gif
 lib/emy/themes/ios/main.css
 lib/helper.js
+lib/leaflet/images/layers-2x.png
 lib/leaflet/images/layers.png
-lib/leaflet/images/marker-icon.png
-lib/leaflet/images/marker-icon@2x.png
-lib/leaflet/images/marker-shadow.png
 lib/leaflet/leaflet.css
+lib/leaflet/leaflet.markercluster.min.js
 lib/leaflet/leaflet.min.js
 lib/leaflet/MarkerCluster.css
 lib/leaflet/MarkerCluster.Default.css
-lib/leaflet/leaflet.markercluster.min.js
 lib/modernizr-2.0.6.min.js
 lib/moment.min.js
 lib/zepto.jcryption.min.js

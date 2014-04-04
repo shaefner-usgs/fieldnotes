@@ -17,12 +17,12 @@ upload.php
 CACHE:
 css/style.css
 favicon.ico
+img/apple-touch-startup-640x1096.jpg
+img/apple-touch-icon-152x152-precomposed.png
 img/error.png
 img/loading.gif
 img/marker-blue.png
 img/ok.png
-img/startup-320x460.png
-img/startup-640x920.png
 js/plugins.js
 js/script.js
 lib/emy/emy.css

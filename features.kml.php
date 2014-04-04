@@ -75,13 +75,13 @@ function parseGetVals() {
 function createKmlFeed($db, $tables, $params) {
 	
 	// KML header
-	include_once $_SERVER['DOCUMENT_ROOT'] . '/sandbox/git/fieldnotes/header.kml.php';
+	include_once $_SERVER['DOCUMENT_ROOT'] . '/fieldnotes/header.kml.php';
 	$output = $header;
 
 	// Get features from db
-	foreach ($tables as $table => $name) {
+	foreach ($tables as $table => $folder_name) {
 
-		$output .= "		<Folder><name>$name</name><open>0</open>";
+		$output .= "		<Folder><name>$folder_name</name><open>0</open>";
 
 		$query_rsFeatures = sprintf("SELECT * FROM %s 
 			LEFT JOIN location ON location_id = location.id 
@@ -96,12 +96,13 @@ function createKmlFeed($db, $tables, $params) {
 		while ($row_rsFeatures = mysql_fetch_assoc($rsFeatures)) {
 
 			$id = $row_rsFeatures['location_id'];
-			$table = '<table>';
+			$table = '<table style="margin-top: 1em;">';
 
 			// get timezone where user submitted form
 			date_default_timezone_set('America/Los_Angeles'); // set to UTC above; need to change it to determine tz accurately
 			$timezone = '';
 			$timestamp = '';
+			$name = 'No timestamp'; // default value
 			if ($row_rsFeatures['gmt_offset']) {
 				$dst = date('I', strtotime($row_rsFeatures['timestamp'])); // boolean: if timestamp is in daylight savings time or not
 				$tz_name = timezone_name_from_abbr('', $row_rsFeatures['gmt_offset'] * 3600, $dst); // timezone name (e.g. America / Los Angeles)
@@ -111,9 +112,10 @@ function createKmlFeed($db, $tables, $params) {
 			}
 			if ($row_rsFeatures['timestamp']) {
 				$timestamp = date('D, M j Y g:ia', strtotime($row_rsFeatures['timestamp']));
+				$name = $timestamp;
 			}
 
-			$properties = array('form' => $name, 'timestamp' => $timestamp, 'timezone' => $timezone);
+			$properties = array('form' => $folder_name, 'timestamp' => $timestamp, 'timezone' => $timezone);
 
 			$device_lat = floatval(round($row_rsFeatures['lat'], 5));
 			$device_lon = floatval(round($row_rsFeatures['lon'], 5));
@@ -182,11 +184,11 @@ function createKmlFeed($db, $tables, $params) {
 					<description>%s</description>
 					<Snippet maxLines="0"></Snippet>
 					<LookAt><longitude>%s</longitude><latitude>%s</latitude><range>1000000</range></LookAt>
-					<styleUrl>#circle</styleUrl>
-					<Style><IconStyle><color>dd0099ff</color><scale>0.6</scale></IconStyle></Style>
+					<styleUrl>#feature</styleUrl>
+					<Style><IconStyle><scale>1.6</scale></IconStyle></Style>
 					<Point><coordinates>%s</coordinates></Point>
 				</Placemark>', 
-				$id, $timestamp, $table, $coords[0], $coords[1], implode(',', $coords)
+				$id, $name, $table, $coords[0], $coords[1], implode(',', $coords)
 			);
 	
 		}

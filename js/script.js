@@ -295,22 +295,7 @@ function addFeatureLayer(markers) {
 				count ++;
 				return new L.Marker(latlng, { icon: blue });
 			},
-			onEachFeature: function(feature, layer) {
-				if (feature.properties) {
-					var img = feature.properties.attachment.replace(/\.(jpg|jpeg|gif|png)$/i, "-tn\.png"), // use thumbnail photo created during upload
-						//img_tag = '<img src="' + img + '" />',
-						html = '<div class="popup"><h1>' + feature.properties.form + '</h1><p class="time">' + feature.properties.timestamp + ' ' + feature.properties.timezone + '</p><p>' + feature.properties.site + ' (' + feature.properties.operator + ')</p>';
-					if (feature.properties.attachment) {
-						//html += '<a href="#photo" data-fieldnotes-src="' + feature.properties.attachment + '">';
-						html += '<img src="' + img + '" height="125" alt="site photo" />';
-						//html += '</a>';
-					}
-					if (feature.properties.notes) {
-						html += '<p>' + feature.properties.notes + '</p>';
-					}
-					layer.bindPopup(html, {maxWidth: '265', closeButton: false, autoPanPadding: new L.Point(5, 50)});
-				}
-			}
+			onEachFeature: createPopup
 		});		
 		//layer_name += ' (' + count + ')';
 		
@@ -348,20 +333,48 @@ function addCheckinLayer(markers) {
 				count ++;
 				return new L.Marker(latlng, { icon: grey });
 			},
-			onEachFeature: function(feature, layer) {
-				if (feature.properties) {
-					var html = '<div class="popup"><h1>Check-in</h1><p class="time">' + feature.properties.timestamp + ' ' + feature.properties.timezone + '</p><p>' + feature.properties.site + ' (' + feature.properties.operator + ')</p>';
-					if (feature.properties.notes) {
-						html += '<p>' + feature.properties.notes + '</p>';
-					}
-					layer.bindPopup(html, {maxWidth: '265', closeButton: false, autoPanPadding: new L.Point(5, 50)});
-				}
-			}
+			onEachFeature: createPopup
 		});
 		//layer_name += ' (' + count + ')';
 		marker_layers.pseudo_layer2 = L.layerGroup();
 		layersControl.addOverlay(marker_layers.pseudo_layer2, layer_name);
 	}
+}
+
+
+// create popup html and attach it to the marker
+function createPopup(feature, layer) {
+	var img,
+		properties = feature.properties,
+		title = properties.form || 'Check-in',
+		html = '<div class="popup"><h1>' + title + '</h1>';
+	
+	// if device didn't pass a timestamp, use the datetime it was recorded to db
+	if (properties.timestamp) {
+		html += '<p class="time">' + properties.timestamp + ' ' + properties.timezone + '</p>';
+	} else {
+		html += '<p class="time">' + properties.recorded || properties.synced + '</p>';
+	}
+	if (properties.attachment) {
+		// use thumbnail photo created during upload
+		img = properties.attachment.replace(/\.(jpg|jpeg|gif|png)$/i, "-tn\.png"), 
+		//html += '<a href="#photo" data-fieldnotes-src="' + properties.attachment + '">';
+		html += '<img src="' + img + '" height="125" alt="site photo" />';
+		//html += '</a>';
+	}
+	html += '<table>';
+	if (properties.site) {
+		html += '<tr><th>Site</th><td>' + properties.site + '</td</tr>';
+	}
+	if (properties.description) {
+		html += '<tr><th>Location</th><td>' + properties.description + '</td</tr>';
+	}
+	html += '</table>';
+	if (properties.notes) {
+		html += '<p>' + properties.notes + '</p>';
+	}
+	html += '<p class="user">Created by ' + properties.operator + '</p>';
+	layer.bindPopup(html, {maxWidth: '265', closeButton: false, autoPanPadding: new L.Point(50, 50)});
 }
 
 

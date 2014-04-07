@@ -287,9 +287,12 @@ function addFeatureLayer(markers) {
 			iconAnchor: [15, 34],
 			popupAnchor: [1, -30]
 		}),
-		layer_name = 'Features';
+		layer_name = 'Features',
+		count = 0;
+		
 		marker_layers[layer_name] = new L.GeoJSON(markers, {
 			pointToLayer: function(feature, latlng) {
+				count ++;
 				return new L.Marker(latlng, { icon: blue });
 			},
 			onEachFeature: function(feature, layer) {
@@ -308,14 +311,15 @@ function addFeatureLayer(markers) {
 					layer.bindPopup(html, {maxWidth: '265', closeButton: false, autoPanPadding: new L.Point(5, 50)});
 				}
 			}
-		});
+		});		
+		//layer_name += ' (' + count + ')';
 		
 		// don't want to "tie" features layer to layers control b/c both features and check-ins are contained in the same cluster but controlled as separate layers
 		// (the layers are manually toggled via an event listener in initMap)
 		// add a "pseudo" layer to map (and reference it in layers control) so that the "Features" layer check box is toggled on
 		marker_layers.pseudo_layer1 = L.layerGroup();
 		map.addLayer(marker_layers.pseudo_layer1);
-		layersControl.addOverlay(marker_layers.pseudo_layer1, 'Features');
+		layersControl.addOverlay(marker_layers.pseudo_layer1, layer_name);
 
 		cluster = new L.MarkerClusterGroup({showCoverageOnHover: false, maxClusterRadius: 20, spiderfyOnMaxZoom: true});
 		map.addLayer(cluster);
@@ -336,9 +340,12 @@ function addCheckinLayer(markers) {
 			iconAnchor: [15, 34],
 			popupAnchor: [1, -30]
 		}),
-		layer_name = 'Check-ins';
+		layer_name = 'Check-ins',
+		count = 0;
+		
 		marker_layers[layer_name] = new L.GeoJSON(markers, {
 			pointToLayer: function(feature, latlng) {
+				count ++;
 				return new L.Marker(latlng, { icon: grey });
 			},
 			onEachFeature: function(feature, layer) {
@@ -351,8 +358,9 @@ function addCheckinLayer(markers) {
 				}
 			}
 		});
+		//layer_name += ' (' + count + ')';
 		marker_layers.pseudo_layer2 = L.layerGroup();
-		layersControl.addOverlay(marker_layers.pseudo_layer2, 'Check-ins');
+		layersControl.addOverlay(marker_layers.pseudo_layer2, layer_name);
 	}
 }
 

@@ -374,7 +374,7 @@ function createPopup(feature, layer) {
 		html += '<p>' + properties.notes + '</p>';
 	}
 	html += '<p class="user">Created by ' + properties.operator + '</p>';
-	layer.bindPopup(html, {maxWidth: '265', closeButton: false, autoPanPadding: new L.Point(50, 50)});
+	layer.bindPopup(html, {maxWidth: '265', closeButton: false, autoPanPadding: new L.Point(5, 50)});
 }
 
 

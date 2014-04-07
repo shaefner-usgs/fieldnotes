@@ -357,7 +357,7 @@ function createPopup(feature, layer) {
 	}
 	if (properties.attachment) {
 		// use thumbnail photo created during upload
-		img = properties.attachment.replace(/\.(jpg|jpeg|gif|png)$/i, "-tn\.png"), 
+		img = properties.attachment.replace(/\.(jpe?g|gif|png)$/i, "-tn.png"), 
 		//html += '<a href="#photo" data-fieldnotes-src="' + properties.attachment + '">';
 		html += '<img src="' + img + '" height="125" alt="site photo" />';
 		//html += '</a>';

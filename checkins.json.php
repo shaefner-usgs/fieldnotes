@@ -99,14 +99,14 @@ function createJsonFeed($db, $tables, $params) {
 		date_default_timezone_set('America/Los_Angeles'); // set to UTC above; need to change it to determine tz accurately
 		$timezone = '';
 		$timestamp = '';
-		if ($row_rsCheckins['gmt_offset']) {
+		if ($row_rsCheckins['gmt_offset'] && $row_rsFeatures['timestamp'] !== '0000-00-00 00:00:00') {
 			$dst = date('I', strtotime($row_rsCheckins['timestamp'])); // boolean: if timestamp is in daylight savings time or not
 			$tz_name = timezone_name_from_abbr('', $row_rsCheckins['gmt_offset'] * 3600, $dst); // timezone name (e.g. America / Los Angeles)
 			$dateTime = new DateTime($row_rsCheckins['timestamp']); 
 			$dateTime->setTimeZone(new DateTimeZone($tz_name)); 
 			$timezone = $dateTime->format('T'); // timezone abbreviation (e.g. PDT)
 		}
-		if ($row_rsCheckins['timestamp']) {
+		if ($row_rsCheckins['timestamp'] && $row_rsFeatures['timestamp'] !== '0000-00-00 00:00:00') {
 			$timestamp = date('D, M j Y g:ia', strtotime($row_rsCheckins['timestamp']));
 		}
 

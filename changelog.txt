@@ -1,5 +1,17 @@
 master
 
+* update to latest Modernizr (2.7.1)
+* add a check to warn user to turn off private browsing
+* bugfix: use empty string in geojson/kml files for records with 0000-00-00 timestamp
+* update KML file: change marker, tweak layout and markers w/ no timestamp, etc
+* rebrand to Clearinghouse Fieldnotes
+* add ability to filter map to only show user's own points
+* bugfix: fix broken href on map's img tags for uploads  
+* update leaflet (0.7.2)
+* add check-ins to map (and update icons on map)
+* add 'General' form
+* file cleanup: remove unused markers; rename markers.kml > features.kml
+* bugfix: landslide form action was set incorrectly
 * bugfix: check if uploaded file exists before outputing in json feed
 * bugfix: ignore file upload field when resuming state
 * changed 'photo' field to 'attachment' for Jim Morentz
@@ -89,4 +101,4 @@ v2.0
 * moved number of records stored on device to inside of sync button
 * bugfix: gmap of user location not loading b/c of setting in cache manifest
 * bugfix: refresh / hide map links navigating away from page b/c of script included in index to prevent links launching safari
-* bugfix: timezone aware (store records in UTC (except location table which is localtime of device)
+* bugfix: timezone aware (store records in UTC, except location table which is the localtime of device)

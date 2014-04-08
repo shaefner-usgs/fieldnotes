@@ -21,8 +21,10 @@
 	<link rel="apple-touch-icon-precomposed" href="img/apple-touch-icon-57x57-precomposed.png">
 	<link rel="shortcut icon" href="img/apple-touch-icon-57x57-precomposed.png">
 
+	<meta name="mobile-web-app-capable" content="yes">
 	<meta name="apple-mobile-web-app-capable" content="yes" />
 	<meta name="apple-mobile-web-app-status-bar-style" content="black">
+	<meta name="apple-mobile-web-app-title" content="Fieldnotes">
 	<link rel="apple-touch-startup-image" href="img/apple-touch-startup-640x920.jpg" media="(device-height: 480px)" />
 	<link rel="apple-touch-startup-image" href="img/apple-touch-startup-640x1096.jpg" media="(device-height: 568px)" />
 	<link rel="apple-touch-startup-image" href="img/apple-touch-startup-768x1004.jpg" media="(device-height: 1024px)" />
@@ -30,7 +32,7 @@
 
 	<!-- Prevent links in standalone web apps opening Mobile Safari. https://gist.github.com/1042026
 			 (commented out b/c it interferes with preventdefault on (e.g.) refresh / toggle map links -->
-	<!--<script>(function(a,b,c){if(c in b&&b[c]){var d,e=a.location,f=/^(a|html)$/i;a.addEventListener("click",function(a){d=a.target;while(!f.test(d.nodeName))d=d.parentNode;"href"in d&&(d.href.indexOf("http")||~d.href.indexOf(e.host))&&(a.preventDefault(),e.href=d.href)},!1)}})(document,window.navigator,"standalone")</script>-->
+	<!--<script><script>(function(a,b,c){if(c in b&&b[c]){var d,e=a.location,f=/^(a|html)$/i;a.addEventListener("click",function(a){d=a.target;while(!f.test(d.nodeName))d=d.parentNode;"href"in d&&(d.href.indexOf("http")||~d.href.indexOf(e.host))&&(a.preventDefault(),e.href=d.href)},!1)}})(document,window.navigator,"standalone")</script>-->
 
 	<meta http-equiv="cleartype" content="on">
 

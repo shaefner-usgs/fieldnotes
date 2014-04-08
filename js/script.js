@@ -199,7 +199,7 @@ function initClickHandlers() {
 
 // Grey out form links if operator field not filled in
 function initOperatorField() {
-	if ($('#operator').val() === '') {
+	if ($('#operator').val().length < 3) {
 		deActivate();
 	}
 
@@ -665,6 +665,13 @@ function returnHtml() {
 function initSaveState() {
 	if (!Modernizr.localstorage) {
 		return false;
+	}
+	// already detected localstorage, so if the following test fails, private browsing must be on
+	try {
+		localStorage['testKey'] = 1;
+		localStorage.removeItem('testKey');
+	} catch (error) {
+		alert('Please disable private browsing to use this app');
 	}
 	var elem_id, other_elem_id;
 

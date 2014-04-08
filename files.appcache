@@ -1,5 +1,5 @@
 CACHE MANIFEST
-# 2013-05-09 12:59pm
+# 2014-04-08 12:52pm
 
 # Alternative resources if user is offline
 FALLBACK:
@@ -45,7 +45,7 @@ lib/leaflet/leaflet.markercluster.min.js
 lib/leaflet/leaflet.min.js
 lib/leaflet/MarkerCluster.css
 lib/leaflet/MarkerCluster.Default.css
-lib/modernizr-2.0.6.min.js
+lib/modernizr-2.7.1.min.js
 lib/moment.min.js
 lib/zepto.jcryption.min.js
 #lib/zepto.min.js

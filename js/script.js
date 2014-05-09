@@ -501,7 +501,7 @@ function locationError(_error) {
 // Store record in browser's localStorage; called from on(off)line.html
 function storeRecord(querystring) {
 	if (!Modernizr.localstorage) {
-		$('#results').attr('data-title', 'Error').html('<p>Can&rsquo;t store record. Your device is in &ldquo;private mode&rdquo; or doesn&rsquo;t support storage.</p>');
+		$('#results').attr('data-title', 'Error').html('<p>Can&rsquo;t store record. Your device is in &ldquo;private&rdquo; mode or doesn&rsquo;t support storage.</p><p>Be certain to reload after disabling private mode.</p>');
 		return false;
 	}
 	var key = moment().valueOf(), // milliseconds since Unix epoch

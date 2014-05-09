@@ -501,7 +501,7 @@ function locationError(_error) {
 // Store record in browser's localStorage; called from on(off)line.html
 function storeRecord(querystring) {
 	if (!Modernizr.localstorage) {
-		$('#results').attr('data-title', 'Error').html('<p>Can&rsquo;t store record. Your device doesn&rsquo;t support storage.</p>');
+		$('#results').attr('data-title', 'Error').html('<p>Can&rsquo;t store record. Your device is in &ldquo;private mode&rdquo; or doesn&rsquo;t support storage.</p>');
 		return false;
 	}
 	var key = moment().valueOf(), // milliseconds since Unix epoch
@@ -663,15 +663,17 @@ function returnHtml() {
 
 // Save user entered values / current screen to localStorage
 function initSaveState() {
+	// if the following test fails, private browsing must be on
+	if (localStorage) {
+		try {
+			localStorage['testKey'] = 1;
+			localStorage.removeItem('testKey');
+		} catch (error) {
+			alert('Please disable private browsing to use this app');
+		}		
+	}
 	if (!Modernizr.localstorage) {
 		return false;
-	}
-	// already detected localstorage, so if the following test fails, private browsing must be on
-	try {
-		localStorage['testKey'] = 1;
-		localStorage.removeItem('testKey');
-	} catch (error) {
-		alert('Please disable private browsing to use this app');
 	}
 	var elem_id, other_elem_id;
 

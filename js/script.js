@@ -230,7 +230,7 @@ function initMap() {
 		center: new L.LatLng(37.5, -118.5),
 		zoom: 5,
 		minZoom: 2,
-		maxZoom: 18,
+		maxZoom: 17,
 		attributionControl: false,
 		scrollWheelZoom: false
 	});

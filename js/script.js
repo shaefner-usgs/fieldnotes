@@ -669,8 +669,8 @@ function initSaveState() {
 			localStorage['testKey'] = 1;
 			localStorage.removeItem('testKey');
 		} catch (error) {
-			alert('Please disable private browsing to use this app');
-		}		
+			alert('Please disable private browsing *and reload* to use this app');
+		}
 	}
 	if (!Modernizr.localstorage) {
 		return false;

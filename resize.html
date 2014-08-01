@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset=utf-8>
+	<title></title>
+  <script charset="utf-8">
+
+function loadImage(file){
+	//	Prevent any non-image file type from being read.
+  if (!file.type.match(/image.*/)) {
+		return;
+	}
+	//	Create our FileReader
+	var reader = new FileReader();
+	reader.onload = function(e){
+		var src = e.target.result; // the image, encoded as data uri
+    //document.getElementById('img').src = src;
+    render(src);
+	};
+	reader.readAsDataURL(file); // async read file
+}
+
+function render(src){
+  var MAX_HEIGHT = 800;
+  var image = new Image();
+  image.onload = function(){
+    var canvas = document.getElementById('canvas');
+    if(image.height > MAX_HEIGHT) {
+      image.width *= MAX_HEIGHT / image.height;
+      image.height = MAX_HEIGHT;
+    }
+    var ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    canvas.width = image.width;
+    canvas.height = image.height;
+    ctx.drawImage(image, 0, 0, image.width, image.height);
+		upload();
+  };
+  image.src = src;
+}
+
+function upload() {
+	var img = document.getElementById('canvas').toDataURL('image/png');
+	encodeURIComponent(img);
+	console.log(img);
+}
+
+window.onload = function() {
+  var target = document.getElementById('photo');
+  target.addEventListener('change', function(e) {
+    var file = e.target.files[0];
+    loadImage(file);
+  });
+}
+
+  </script>
+</head>
+<body>
+
+  <form action="">
+    <input type="file" name="photo" id="photo" accept="image/*">
+  </form>
+  <img id="img" />
+  <canvas id="canvas"></canvas>
+
+</body>
+</html>

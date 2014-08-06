@@ -32,7 +32,7 @@ $header = sprintf('<?xml version="1.0" encoding="UTF-8"?>
 			<BalloonStyle><text><![CDATA[
 				<style>
 					h2 { font-family: Verdana; } 
-					table { font-family: Helvetica, Arial, sans-serif; } 
+					table { font-family: Helvetica, Arial, sans-serif; margin-top: 1em; } 
 					th { text-align: right; padding-right: .5em; }
 				</style>
 				<img src="http://%s%s/img/banner-2x.png" alt="Fieldnotes" width="400" height="40" />

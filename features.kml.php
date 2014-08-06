@@ -96,7 +96,7 @@ function createKmlFeed($db, $tables, $params) {
 		while ($row_rsFeatures = mysql_fetch_assoc($rsFeatures)) {
 
 			$id = $row_rsFeatures['location_id'];
-			$table = '<table style="margin-top: 1em;">';
+			$table = '<table>';
 
 			// get timezone where user submitted form
 			date_default_timezone_set('America/Los_Angeles'); // set to UTC above; need to change it to determine tz accurately
@@ -183,7 +183,7 @@ function createKmlFeed($db, $tables, $params) {
 				<Placemark id="%d">
 					<visibility>1</visibility>
 					<name>%s</name>
-					<description>%s</description>
+					<description><![CDATA[%s]]></description>
 					<Snippet maxLines="0"></Snippet>
 					<LookAt><longitude>%s</longitude><latitude>%s</latitude><range>1000000</range></LookAt>
 					<styleUrl>#feature</styleUrl>

@@ -15,7 +15,7 @@ $(document).ready(function() {
 	for (var i = 0, len = elems.length; i < len; i ++) {
 		MBP.autogrow(elems[i]);
 	}
-	
+
 	// the following are commented out b/c we are disabling zooming in via HTML meta tag
 	//MBP.preventZoom(); // Prevent iOS from zooming form fields onfocus
 	//MBP.scaleFix(); // Prevent scaling bug in iOS when rotating portrait to landscape
@@ -28,7 +28,7 @@ var initView = {
 		var screen_id = initView.setScreen(),
 			records = getRecords(),
 			num_records = Object.keys(records).length;
-		
+
 		$('#operator').appendTo('#user').prop('type', 'email'); // move operator field back to home screen and change back to email
 		$('#syncrecords a span').remove(); // remove any previous sync msg
 		$('#syncrecords a').append(' <span>' + num_records + ' record'.pluralize(num_records) + '</span>');
@@ -71,7 +71,7 @@ var initView = {
 			num_records = Object.keys(records).length;
 
 		$('#syncstatus, #syncresults li').html('');
-		
+
 		// update button and status
 		if (num_records > 0) {
 			$('#syncbutton').html('Sync ' + num_records + ' ' + 'Record'.pluralize(num_records));
@@ -93,7 +93,7 @@ var initView = {
 	setScreen: function() {
 		var elem = emy.getSelectedView(),
 			screen_id = '#' + elem.id;
-		
+
 		localStorage.screen = screen_id; // save screen user is viewing
 		return screen_id;
 	}
@@ -168,7 +168,7 @@ function initClickHandlers() {
 		}
 
 		// get selected features
-		
+
 		$.ajax({
 			url: 'features.json.php?' + qs,
 			dataType: 'jsonp',
@@ -278,7 +278,7 @@ function addFeatureLayer(markers) {
 
 	// update map container - emy framework confuses leaflet map and this forces map to display correctly
 	map.invalidateSize();
-	
+
 	// plot selected markers
 	if (markers) {
 		var blue = L.icon({
@@ -289,16 +289,16 @@ function addFeatureLayer(markers) {
 		}),
 		layer_name = 'Features',
 		count = 0;
-		
+
 		marker_layers[layer_name] = new L.GeoJSON(markers, {
 			pointToLayer: function(feature, latlng) {
 				count ++;
 				return new L.Marker(latlng, { icon: blue });
 			},
 			onEachFeature: createPopup
-		});		
+		});
 		//layer_name += ' (' + count + ')';
-		
+
 		// don't want to "tie" features layer to layers control b/c both features and check-ins are contained in the same cluster but controlled as separate layers
 		// (the layers are manually toggled via an event listener in initMap)
 		// add a "pseudo" layer to map (and reference it in layers control) so that the "Features" layer check box is toggled on
@@ -327,7 +327,7 @@ function addCheckinLayer(markers) {
 		}),
 		layer_name = 'Check-ins',
 		count = 0;
-		
+
 		marker_layers[layer_name] = new L.GeoJSON(markers, {
 			pointToLayer: function(feature, latlng) {
 				count ++;
@@ -348,7 +348,7 @@ function createPopup(feature, layer) {
 		properties = feature.properties,
 		title = properties.form || 'Check-in',
 		html = '<div class="popup"><h1>' + title + '</h1>';
-	
+
 	// if device didn't pass a timestamp, use the datetime it was recorded to db
 	if (properties.timestamp) {
 		html += '<p class="time">' + properties.timestamp + ' ' + properties.timezone + '</p>';
@@ -357,7 +357,7 @@ function createPopup(feature, layer) {
 	}
 	if (properties.attachment) {
 		// use thumbnail photo created during upload
-		img = properties.attachment.replace(/\.(jpe?g|gif|png)$/i, "-tn.png"), 
+		img = properties.attachment.replace(/\.(jpe?g|gif|png)$/i, "-tn.png"),
 		//html += '<a href="#photo" data-fieldnotes-src="' + properties.attachment + '">';
 		html += '<img src="' + img + '" height="125" alt="site photo" />';
 		//html += '</a>';
@@ -387,7 +387,7 @@ function getLocation(timestamp) {
 
 	// disable submit button until device location determined
 	$('.record').addClass('disabled');
-	
+
 	// remove any previous location info / map
 	$('.location').remove();
 
@@ -436,11 +436,11 @@ function setLocation(_position) {
 // Display user's location -- map, coords, etc
 function displayLocation(lat, lon, timestamp) {
 	var coords, spoton;
-	
+
 	if (localStorage.spoton_lat && localStorage.spoton_lon) {
 		spoton = true;
 	}
-	
+
 	// display coords
 	coords = lat + ', ' + lon;
 	if (timestamp && !spoton) {
@@ -473,7 +473,7 @@ function displayLocation(lat, lon, timestamp) {
 			$('#showmap').text('Show Map');
 		}
 	}
-	
+
 	// display location info
 	$('.location').hide().slideDown('fast');
 }
@@ -534,7 +534,7 @@ function storeRecord(querystring) {
 // Insert record into db
 function insertRecord(key, querystring) {
 	var screen_id = localStorage.screen;
-	
+
 	$.get('insert.php?' + querystring, function(error) {
 		if (screen_id === '#sync') { // sync screen
 			if (error) {
@@ -645,7 +645,7 @@ function returnHtml() {
 		label = key.capitalize();
 		if (key === 'location-description') {
 			label = 'Location';
-		} 
+		}
 		else if (labels[form_name] && typeof labels[form_name][key] === 'string') {
 			label = labels[form_name][key].capitalize();
 		}

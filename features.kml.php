@@ -7,12 +7,12 @@ header('Content-Type: application/vnd.google-earth.kml+xml');
 
 date_default_timezone_set('UTC'); // recorded / synced db fields are in UTC
 
-include_once $_SERVER['DOCUMENT_ROOT'] . '/template/db/dbConnect.fieldnotes.inc.php';
+include_once 'conf/db.inc.php';
 
 $tables = array(
-	'landslide' => 'Landslide', 
-	'liquefaction' => 'Liquefaction', 
-	'rupture' => 'Fault Rupture', 
+	'landslide' => 'Landslide',
+	'liquefaction' => 'Liquefaction',
+	'rupture' => 'Fault Rupture',
 	'tsunami' => 'Tsunami',
 	'lifelines' => 'Lifelines',
 	'building' => 'Building',
@@ -42,14 +42,14 @@ function parseGetVals() {
 	$periods = array(
 		'hour' => '1 hour ago',
 		'day' => '1 day ago',
-		'week' => '7 days ago', 
+		'week' => '7 days ago',
 		'month' => '1 month ago',
 		'quarter' => '3 months ago'
 	);
 	$before = time();
 	$after = strtotime('2011-01-01');
 	$allowed = '/^[\w,]+$/'; // Sanitize input parameter (alphanumerics only)
-	
+
 	if (isSet($_GET['before']) && (preg_match($allowed, $_GET['before']))) {
 		$before = $_GET['before'];
 	}
@@ -59,21 +59,21 @@ function parseGetVals() {
 	if (isSet($_GET['between']) && (preg_match($allowed, $_GET['between']))) {
 		list($after, $before) = preg_split('/\s?,\s?/', $_GET['between']);
 	}
-	
+
 	$params['before_sql'] = date('Y-m-d H:i:s', $before);
 	$params['after_sql'] = date('Y-m-d H:i:s', $after);
-	
+
 	if (isSet($_GET['period']) && (preg_match($allowed, $_GET['period']))) {
 		$period = $_GET['period'];
 		$params['after_sql'] = date("Y-m-d H:i:s", strtotime($periods[$period]));
 	}
-	
+
 	return $params;
 }
 
 // Create kml file
 function createKmlFeed($db, $tables, $params) {
-	
+
 	// KML header
 	include_once $_SERVER['DOCUMENT_ROOT'] . '/fieldnotes/header.kml.php';
 	$output = $header;
@@ -83,16 +83,16 @@ function createKmlFeed($db, $tables, $params) {
 
 		$output .= "		<Folder><name>$folder_name</name><open>0</open>";
 
-		$query_rsFeatures = sprintf("SELECT * FROM %s 
-			LEFT JOIN location ON location_id = location.id 
-			LEFT JOIN spoton ON spoton_id = spoton.id 
-			WHERE (recorded BETWEEN '%s' AND '%s' OR synced BETWEEN '%s' AND '%s') 
+		$query_rsFeatures = sprintf("SELECT * FROM %s
+			LEFT JOIN location ON location_id = location.id
+			LEFT JOIN spoton ON spoton_id = spoton.id
+			WHERE (recorded BETWEEN '%s' AND '%s' OR synced BETWEEN '%s' AND '%s')
 				AND ((location.lat != '' AND location.lon != '') OR (spoton.latitude != '' AND spoton.longitude != ''))
-			ORDER BY recorded DESC;", 
+			ORDER BY recorded DESC;",
 			$table, $params['after_sql'], $params['before_sql'], $params['after_sql'], $params['before_sql']);
 
 		$rsFeatures = mysql_query($query_rsFeatures, $db) or die(mysql_error());
-	
+
 		while ($row_rsFeatures = mysql_fetch_assoc($rsFeatures)) {
 
 			$id = $row_rsFeatures['location_id'];
@@ -107,8 +107,8 @@ function createKmlFeed($db, $tables, $params) {
 				$dst = date('I', strtotime($row_rsFeatures['timestamp'])); // boolean: if timestamp is in daylight savings time or not
 				$tz_name = timezone_name_from_abbr('', round($row_rsFeatures['gmt_offset']) * 3600, $dst); // timezone name (e.g. America / Los Angeles)
 				if ($tz_name) {
-					$dateTime = new DateTime($row_rsFeatures['timestamp']); 
-					$dateTime->setTimeZone(new DateTimeZone($tz_name)); 
+					$dateTime = new DateTime($row_rsFeatures['timestamp']);
+					$dateTime->setTimeZone(new DateTimeZone($tz_name));
 					$timezone = $dateTime->format('T'); // timezone abbreviation (e.g. PDT)
 				}
 			}
@@ -132,9 +132,9 @@ function createKmlFeed($db, $tables, $params) {
 				);
 			} else {
 				$coords = array(
-					$device_lon, 
+					$device_lon,
 					$device_lat,
-					floatval($row_rsFeatures['z'])		
+					floatval($row_rsFeatures['z'])
 				);
 			}
 
@@ -189,10 +189,10 @@ function createKmlFeed($db, $tables, $params) {
 					<styleUrl>#feature</styleUrl>
 					<Style><IconStyle><scale>1.6</scale></IconStyle></Style>
 					<Point><coordinates>%s</coordinates></Point>
-				</Placemark>', 
+				</Placemark>',
 				$id, $name, $table, $coords[0], $coords[1], implode(',', $coords)
 			);
-	
+
 		}
 
 		$output .= "</Folder>";

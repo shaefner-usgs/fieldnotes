@@ -7,7 +7,7 @@ header('Content-Type: application/json');
 
 date_default_timezone_set('UTC'); // recorded / synced db fields are in UTC
 
-include_once ($_SERVER['DOCUMENT_ROOT'] . '/template/db/dbConnect.fieldnotes.inc.php');
+include_once 'conf/db.inc.php';
 
 $params = parseGetVals();
 $json_array = createJsonFeed($db, $tables, $params);
@@ -39,14 +39,14 @@ function parseGetVals() {
 	$periods = array(
 		'hour' => '1 hour ago',
 		'day' => '1 day ago',
-		'week' => '7 days ago', 
+		'week' => '7 days ago',
 		'month' => '1 month ago',
 		'quarter' => '3 months ago'
 	);
 	$before = time();
 	$after = strtotime('2011-01-01');
 	$allowed = '/^[\w,\@\.]+$/'; // Sanitize input parameter (alphanumerics + a few others only)
-	
+
 	if (isSet($_GET['before']) && (preg_match($allowed, $_GET['before']))) {
 		$before = $_GET['before'];
 	}
@@ -56,11 +56,11 @@ function parseGetVals() {
 	if (isSet($_GET['between']) && (preg_match($allowed, $_GET['between']))) {
 		list($after, $before) = preg_split('/\s?,\s?/', $_GET['between']);
 	}
-	
+
 	$params['before_sql'] = date('Y-m-d H:i:s', $before);
 	$params['after_sql'] = date('Y-m-d H:i:s', $after);
 	$params['operator'] = '%'; // mysql wildcard
-	
+
 	if (isSet($_GET['period']) && (preg_match($allowed, $_GET['period']))) {
 		$period = $_GET['period'];
 		$params['after_sql'] = date("Y-m-d H:i:s", strtotime($periods[$period]));
@@ -71,7 +71,7 @@ function parseGetVals() {
 	if (isSet($_GET['operator']) && (preg_match($allowed, $_GET['operator']))) {
 		$params['operator'] = $_GET['operator'];
 	}
-	
+
 	return $params;
 }
 
@@ -80,19 +80,19 @@ function createJsonFeed($db, $tables, $params) {
 	// Create array to store check-ins
 	$features = array();
 
-	$query_rsCheckins = sprintf("SELECT * FROM checkin 
-		LEFT JOIN location ON location_id = location.id 
-		LEFT JOIN spoton ON spoton_id = spoton.id 
-		WHERE (recorded BETWEEN '%s' AND '%s' OR synced BETWEEN '%s' AND '%s') 
+	$query_rsCheckins = sprintf("SELECT * FROM checkin
+		LEFT JOIN location ON location_id = location.id
+		LEFT JOIN spoton ON spoton_id = spoton.id
+		WHERE (recorded BETWEEN '%s' AND '%s' OR synced BETWEEN '%s' AND '%s')
 			AND ((location.lat != '' AND location.lon != '') OR (spoton.latitude != '' AND spoton.longitude != ''))
 			AND operator LIKE '%s'
-		ORDER BY recorded ASC;", 
+		ORDER BY recorded ASC;",
 		$params['after_sql'], $params['before_sql'], $params['after_sql'], $params['before_sql'], $params['operator']);
 
 	$rsCheckins = mysql_query($query_rsCheckins, $db) or die(mysql_error());
 
 	while ($row_rsCheckins = mysql_fetch_assoc($rsCheckins)) {
-	
+
 		$id = $row_rsCheckins['location_id'];
 
 		// get timezone where user submitted form
@@ -103,8 +103,8 @@ function createJsonFeed($db, $tables, $params) {
 			$dst = date('I', strtotime($row_rsCheckins['timestamp'])); // boolean: if timestamp is in daylight savings time or not
 			$tz_name = timezone_name_from_abbr('', round($row_rsCheckins['gmt_offset']) * 3600, $dst); // timezone name (e.g. America / Los Angeles)
 			if ($tz_name) {
-				$dateTime = new DateTime($row_rsCheckins['timestamp']); 
-				$dateTime->setTimeZone(new DateTimeZone($tz_name)); 
+				$dateTime = new DateTime($row_rsCheckins['timestamp']);
+				$dateTime->setTimeZone(new DateTimeZone($tz_name));
 				$timezone = $dateTime->format('T'); // timezone abbreviation (e.g. PDT)
 			}
 		}
@@ -127,9 +127,9 @@ function createJsonFeed($db, $tables, $params) {
 			);
 		} else {
 			$coords = array(
-				$device_lon, 
+				$device_lon,
 				$device_lat,
-				floatval($row_rsCheckins['z'])		
+				floatval($row_rsCheckins['z'])
 			);
 		}
 
@@ -151,7 +151,7 @@ function createJsonFeed($db, $tables, $params) {
 		unset($row_rsCheckins['wpid']);
 		unset($row_rsCheckins['longitude']);
 		unset($row_rsCheckins['latitude']);
-	
+
 		foreach ($row_rsCheckins as $key => $value) {
 			if (($key === 'recorded' || $key === 'synced') && $value) {
 				$value .= ' UTC'; // add UTC timezone string to recorded / snyced fields
@@ -171,7 +171,7 @@ function createJsonFeed($db, $tables, $params) {
 		}
 
 		$feature = array(
-			"type" => "Feature", 
+			"type" => "Feature",
 			"id" => $id,
 			"geometry" => array(
 				"type" => "Point",
@@ -179,15 +179,15 @@ function createJsonFeed($db, $tables, $params) {
 			),
 			"properties" => $properties
 		);
-		
+
 		array_push($features, $feature);
-	
+
 	}
-	
+
 	$geojson = '';
 	if ($features) {
 		$geojson = array(
-			"type" => "FeatureCollection", 
+			"type" => "FeatureCollection",
 			"features" => $features
 		);
 	}

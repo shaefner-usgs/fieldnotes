@@ -2,11 +2,10 @@
 
 //exit;
 
-#ImageMagick's convert cmd
-$convert = '/usr/bin/convert';
+include_once 'conf/conf.inc.php';
 
-$maxsize = 2000000;
-ini_set('upload_max_filesize', $maxsize); // attempt to set php's max upload size
+// attempt to set php's max upload size
+ini_set('upload_max_filesize', $maxsize);
 
 // set path and filename (base filename passed to upload script via name param)
 $allowed = '/^\d+$/';

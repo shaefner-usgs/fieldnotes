@@ -1,6 +1,7 @@
 <?php
 
-date_default_timezone_set('UTC');
+include_once 'conf/conf.inc.php';
+
 $domain = $_SERVER['SERVER_NAME'];
 $path = pathinfo($_SERVER['REQUEST_URI'], PATHINFO_DIRNAME);
 
@@ -19,7 +20,7 @@ $header = sprintf('<?xml version="1.0" encoding="UTF-8"?>
 			<LabelStyle><scale>0</scale></LabelStyle>
 			<BalloonStyle><text><![CDATA[
 				<style>
-					table { font-family: Helvetica, Arial, sans-serif; margin-top: 1em; } 
+					table { font-family: Helvetica, Arial, sans-serif; margin-top: 1em; }
 					th { text-align: right; padding-right: .5em; }
 				</style>
 				<img src="http://%s%s/img/banner-2x.png" alt="Fieldnotes" width="400" height="40" />
@@ -31,8 +32,8 @@ $header = sprintf('<?xml version="1.0" encoding="UTF-8"?>
 			<LabelStyle><scale>1</scale></LabelStyle>
 			<BalloonStyle><text><![CDATA[
 				<style>
-					h2 { font-family: Verdana; } 
-					table { font-family: Helvetica, Arial, sans-serif; margin-top: 1em; } 
+					h2 { font-family: Verdana; }
+					table { font-family: Helvetica, Arial, sans-serif; margin-top: 1em; }
 					th { text-align: right; padding-right: .5em; }
 				</style>
 				<img src="http://%s%s/img/banner-2x.png" alt="Fieldnotes" width="400" height="40" />
@@ -50,7 +51,7 @@ $header = sprintf('<?xml version="1.0" encoding="UTF-8"?>
 			<tilt>0</tilt>
 			<heading>0</heading>
 		</LookAt>
-', 
+',
 	date('Y-m-d H:i:s') . ' UTC',
 	$domain, $path,
 	$domain, $path,

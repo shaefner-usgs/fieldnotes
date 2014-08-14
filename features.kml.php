@@ -5,19 +5,8 @@
 header('cache-control: no-cache');
 header('Content-Type: application/vnd.google-earth.kml+xml');
 
-date_default_timezone_set('UTC'); // recorded / synced db fields are in UTC
-
+include_once 'conf/conf.inc.php';
 include_once 'conf/db.inc.php';
-
-$tables = array(
-	'landslide' => 'Landslide',
-	'liquefaction' => 'Liquefaction',
-	'rupture' => 'Fault Rupture',
-	'tsunami' => 'Tsunami',
-	'lifelines' => 'Lifelines',
-	'building' => 'Building',
-	'general' => 'General'
-);
 
 $params = parseGetVals();
 $kml = createKmlFeed($db, $tables, $params);

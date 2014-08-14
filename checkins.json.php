@@ -5,8 +5,7 @@
 header('cache-control: no-cache');
 header('Content-Type: application/json');
 
-date_default_timezone_set('UTC'); // recorded / synced db fields are in UTC
-
+include_once 'conf/conf.inc.php';
 include_once 'conf/db.inc.php';
 
 $params = parseGetVals();

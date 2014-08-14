@@ -7,8 +7,7 @@
 
 header('cache-control: no-cache');
 
-date_default_timezone_set('UTC');
-
+include_once 'conf/conf.inc.php';
 include_once 'conf/db.inc.php';
 
 $params = parseGetVals();

@@ -9,6 +9,8 @@ online.html offline.html
 # Resources / sites that require user to be online
 NETWORK:
 checkins.json.php
+conf/conf.inc.php
+conf/db.inc.php
 features.json.php
 features.kml.php
 header.kml.php
@@ -29,6 +31,7 @@ img/pin-m-checkin+999.png
 img/pin-m-feature+00c.png
 js/plugins.js
 js/script.js
+lib/canvas-to-blob.min.js
 lib/emy/emy.css
 lib/emy/emy.js
 lib/emy/plugins/extended-transitions/emy-extended-transitions.css
@@ -37,6 +40,7 @@ lib/emy/themes/ios/backButtonSel.png
 lib/emy/themes/ios/listArrow.png
 lib/emy/themes/ios/loading.gif
 lib/emy/themes/ios/main.css
+lib/exif.js
 lib/helper.js
 lib/leaflet/images/layers-2x.png
 lib/leaflet/images/layers.png
@@ -45,6 +49,7 @@ lib/leaflet/leaflet.markercluster.min.js
 lib/leaflet/leaflet.min.js
 lib/leaflet/MarkerCluster.css
 lib/leaflet/MarkerCluster.Default.css
+lib/megapix-image.js
 lib/modernizr-2.7.1.min.js
 lib/moment.min.js
 lib/zepto.jcryption.min.js

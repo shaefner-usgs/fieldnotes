@@ -1,19 +1,23 @@
 <?php
 
 //exit;
+//print_r ($_FILES);
 
 include_once 'conf/conf.inc.php';
 
 // attempt to set php's max upload size
 ini_set('upload_max_filesize', $maxsize);
 
-// set path and filename (base filename passed to upload script via name param)
+// allowed file types
+$allowed_exts = array('gif', 'jpeg', 'jpg', 'png');
+
+// set path and filename (base filename passed in via name param)
 $allowed = '/^\d+$/';
 if (isSet($_POST['name']) && (preg_match($allowed, $_POST['name']))) {
 	$name = $_POST['name'];
 }
 $parts = explode('.', $_FILES['photo']['name']);
-$ext = end($parts);
+$ext = strtolower(end($parts));
 $upload_dir = dirname(__FILE__) . '/uploads';
 $upload_file = "$upload_dir/$name.$ext";
 
@@ -30,11 +34,18 @@ if ($_FILES['photo']['error']) {
  	exit;
 }
 
+if (!in_array($ext, $allowed_exts)) {
+  print "File type not allowed ($ext)";
+  exit;
+}
+
+// enforce max size independent of server settings
 if ($_FILES['photo']['size'] > $maxsize) {
 	print 'Photo is too large';
 	exit;
 }
 
+// move uploaded file and create thumbnail
 if (move_uploaded_file($_FILES['photo']['tmp_name'], $upload_file)) {
   // success; create thumbnail
   exec("$convert $upload_file -auto-orient -thumbnail 300x300 -unsharp 0x.5 -bordercolor white -border 10 -bordercolor grey60 -border 1 -background black \( +clone -shadow 40x4+3+3 \) +swap -background none -flatten $upload_dir/$name-tn.png");

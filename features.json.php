@@ -207,7 +207,7 @@ function sanitize($param) {
 	return $r;
 }
 
-// convert null values from MySQL to empty strings in JSON
+// convert null values from MySQL to empty strings
 function null2string($value) {
 	if ($value === null) {
 		$value = '';

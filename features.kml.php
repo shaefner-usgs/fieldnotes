@@ -1,6 +1,6 @@
 <?php
 
-// script creates geoJSON file of recorded features
+// script creates kml file of recorded features
 
 header('cache-control: no-cache');
 header('Content-Type: application/vnd.google-earth.kml+xml');
@@ -196,7 +196,7 @@ function createKmlFeed($db, $tables, $params) {
 
 }
 
-// convert null values from MySQL to empty strings in JSON
+// convert null values from MySQL to empty strings
 function null2string($value) {
 	if ($value === null) {
 		$value = '';

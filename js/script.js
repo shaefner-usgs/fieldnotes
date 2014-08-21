@@ -503,30 +503,30 @@ function storeRecord(querystring) {
 		$('#results').attr('data-title', 'Error').html('<p>Can&rsquo;t store record. Your device is in &ldquo;private&rdquo; mode or doesn&rsquo;t support storage.</p><p>Be certain to reload after disabling private mode.</p>');
 		return false;
 	}
-	var key = moment().valueOf(), // milliseconds since Unix epoch
-		record = querystring,
-		screen_hash = localStorage.screen;
 
-	if (localStorage.spoton) { // add spoton info if it's there
-		record += localStorage.spoton;
+	var key = moment().valueOf(), // milliseconds since Unix epoch
+		screen_hash = localStorage.screen,
+		file_id = screen_hash.substr(1) + '-photo',
+		file = document.getElementById(file_id).files[0];
+
+	// add extra params to querystring that get stored in db
+	if (file) {
+		var ext = file.name.substr(file.name.lastIndexOf('.') + 1).toLowerCase();
+		// append generated filename
+		querystring += '&photo=' + key + '.' + ext;
+	}
+	if (localStorage.spoton) {
+		// add spoton info if it's there
+		querystring += localStorage.spoton;
 	}
 
-	// store record (and insert in db if user is online)
+	// store record in localstorage (and insert in db / upload photo if user is online)
+	localStorage[key] = querystring;
 	if (navigator.onLine) {
-		// upload photo if included
-		var file_id = screen_hash.substr(1) + '-photo',
-			file = document.getElementById(file_id).files[0];
-		if (file) {
-			var ext = file.name.substr(file.name.lastIndexOf('.') + 1).toLowerCase();
-			// append filename to query string so it gets inserted in db
-			record += '&photo=' + key + '.' + ext;
+		if (file) { // upload photo if included
 			uploadPhoto(file, key);
 		}
-		// store record in localstorage
-		localStorage[key] = record;
-
-		// insert record in db
-		insertRecord(key, record);
+		insertRecord(key, querystring);
 	}
 
 	returnHtml(); // display results

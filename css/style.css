@@ -131,7 +131,7 @@ fieldset ul.inputs li {
 }
 .photo p {
 	position: absolute;
-	top: 8px;
+	top: 6px;
 	left: 18em;
 	color: #333;
 	font-size: .75em;
@@ -176,8 +176,8 @@ section fieldset > .row > select {
 section fieldset > .row > textarea {
 	min-height: 0;
 }
-section fieldset > .row > textarea, 
-section fieldset > .row > span, 
+section fieldset > .row > textarea,
+section fieldset > .row > span,
 section fieldset > .row > input:not([type|=radio]):not([type|=checkbox]) {
 	padding-left: 125px;
 }

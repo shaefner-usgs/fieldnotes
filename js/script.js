@@ -25,7 +25,7 @@ $(document).ready(function() {
 // Fire events when user loads a view (called from data-onshow in html)
 var initView = {
 	home: function() {
-		var screen_id = initView.setScreen(),
+		var screen_hash = initView.setScreen(),
 			records = getRecords(),
 			num_records = Object.keys(records).length;
 
@@ -34,13 +34,13 @@ var initView = {
 		$('#syncrecords a').append(' <span>' + num_records + ' record'.pluralize(num_records) + '</span>');
 	},
 	form: function() {
-		var screen_id = initView.setScreen();
+		var screen_hash = initView.setScreen();
 
-		$('#operator, #hidden-fields').appendTo(screen_id + ' form'); // move operator and hidden fields to screen (form) user is viewing
+		$('#operator, #hidden-fields').appendTo(screen_hash + ' form'); // move operator and hidden fields to screen (form) user is viewing
 		$('#operator').prop('type', 'text'); // change to type text to prevent html5 validation from failing on non-email (not enforced)
-		$('#form-name').val(screen_id.substr(1)); // store form-name in hidden field
-		if (localStorage.spoton_site && !localStorage[screen_id.substr(1) + '-site']) { // set 'Site' field to Spoton site if user hasn't already overridden it
-			$(screen_id + '-site').val(localStorage.spoton_site);
+		$('#form-name').val(screen_hash.substr(1)); // store form-name in hidden field
+		if (localStorage.spoton_site && !localStorage[screen_hash.substr(1) + '-site']) { // set 'Site' field to Spoton site if user hasn't already overridden it
+			$(screen_hash + '-site').val(localStorage.spoton_site);
 		}
 		if (navigator.onLine) { // show photo upload only if user online
 			$('.photo').css('display', 'block');
@@ -50,7 +50,7 @@ var initView = {
 		getLocation(new Date().getTime());
 	},
 	features: function() {
-		var screen_id = initView.setScreen();
+		var screen_hash = initView.setScreen();
 
 		if (navigator.onLine) {
 			$('#features li a').removeClass('disabled').not('.download').removeAttr('target');
@@ -66,7 +66,7 @@ var initView = {
 		}
 	},
 	sync: function() {
-		var screen_id = initView.setScreen(),
+		var screen_hash = initView.setScreen(),
 			records = getRecords(),
 			num_records = Object.keys(records).length;
 
@@ -88,14 +88,14 @@ var initView = {
 		}
 	},
 	photo: function() {
-		var screen_id = initView.setScreen();
+		var screen_hash = initView.setScreen();
 	},
 	setScreen: function() {
 		var elem = emy.getSelectedView(),
-			screen_id = '#' + elem.id;
+			screen_hash = '#' + elem.id;
 
-		localStorage.screen = screen_id; // save screen user is viewing
-		return screen_id;
+		localStorage.screen = screen_hash; // save screen user is viewing
+		return screen_hash;
 	}
 };
 
@@ -382,7 +382,7 @@ function getLocation(timestamp) {
 	if (!Modernizr.geolocation) {
 		return false;
 	}
-	var screen_id = localStorage.screen;
+	var screen_hash = localStorage.screen;
 
 	// disable submit button until device location determined
 	$('.record').addClass('disabled');
@@ -390,7 +390,7 @@ function getLocation(timestamp) {
 	// remove any previous location info / map
 	$('.location').remove();
 
-	$(screen_id + '-location')
+	$(screen_hash + '-location')
 		.after('<div class="location"><p id="coords">Locating&hellip;</p></div>');
 
 	navigator.geolocation.getCurrentPosition(setLocation, locationError, {enableHighAccuracy: true, maximumAge: 1000, timeout: 5000});
@@ -505,7 +505,7 @@ function storeRecord(querystring) {
 	}
 	var key = moment().valueOf(), // milliseconds since Unix epoch
 		record = querystring,
-		screen_id = localStorage.screen;
+		screen_hash = localStorage.screen;
 
 	if (localStorage.spoton) { // add spoton info if it's there
 		record += localStorage.spoton;
@@ -515,7 +515,7 @@ function storeRecord(querystring) {
 	localStorage[key] = record;
 	if (navigator.onLine) {
 		// upload photo if included
-		var file_id = screen_id.substr(1) + '-photo',
+		var file_id = screen_hash.substr(1) + '-photo',
 			file = document.getElementById(file_id).files[0];
 		if (file) {
 			var ext = file.name.substr(file.name.lastIndexOf('.') + 1).toLowerCase();
@@ -535,10 +535,10 @@ function storeRecord(querystring) {
 
 // Insert record into db
 function insertRecord(key, querystring) {
-	var screen_id = localStorage.screen;
+	var screen_hash = localStorage.screen;
 
 	$.get('insert.php?' + querystring, function(error) {
-		if (screen_id === '#sync') { // sync screen
+		if (screen_hash === '#sync') { // sync screen
 			if (error) {
 				db_errors ++;
 				$('#sync .error').html(db_errors + ' record'.pluralize(db_errors) + ' failed to sync: ' + error);
@@ -599,14 +599,14 @@ function loadImage(file) {
 	$('.record').addClass('disabled');
 
 	// setup canvas elem
-	var screen_id = localStorage.screen,
-		canvas_id = screen_id.substr(1) + '-' + 'canvas';
+	var screen_hash = localStorage.screen,
+		canvas_id = screen_hash.substr(1) + '-' + 'canvas';
 
 	// remove any previous canvas, p elems
 	$('#' + canvas_id).remove();
-	$(screen_id + ' .photo p').remove();
+	$(screen_hash + ' .photo p').remove();
 	
-	$(screen_id + ' .photo')
+	$(screen_hash + ' .photo')
 		.append('<p>' + file.name + ' (' + Math.round(file.size * 10 / 1000) / 10 + ' kB)</p>')
 		.append('<canvas id="' + canvas_id + '"></canvas>');
 
@@ -629,8 +629,8 @@ function loadImage(file) {
 // Upload attached photo
 function uploadPhoto(file, basename) {
 	// grab contents of canvas element (resized img)
-	var screen_id = localStorage.screen,
-		canvas_id = screen_id.substr(1) + '-' + 'canvas',
+	var screen_hash = localStorage.screen,
+		canvas_id = screen_hash.substr(1) + '-' + 'canvas',
 		canvas = document.getElementById(canvas_id);
 	
 	canvas.toBlob(function(imgblob) {
@@ -764,17 +764,17 @@ function resumeState() {
 		return false;
 	}
 	var elem_id, hashtag, url, is_checked,
-		screen_id = localStorage.screen;
+		screen_hash = localStorage.screen;
 
 	show_map = parseInt(localStorage.show_map, 10);
 
 	// show appropriate screen
-	if (screen_id) {
-		if (screen_id === '#home') {
+	if (screen_hash) {
+		if (screen_hash === '#home') {
 			initView.home();
 		}
 		if (!window.location.hash) {
-			url = 'http://' + window.location.host + window.location.pathname + screen_id;
+			url = 'http://' + window.location.host + window.location.pathname + screen_hash;
 			window.location.replace(url);
 		}
 	}

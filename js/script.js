@@ -133,7 +133,7 @@ function initClickHandlers() {
 	});
 
 	// attach listener for user adding a photo
-	$('[name="photo"]').on('change', function(e) {
+	$('[name="file"]').on('change', function(e) {
 		var file = e.target.files[0]; // file pointer obj
 		loadImage(file);
 	});
@@ -688,7 +688,7 @@ function returnHtml() {
 				(key.match(/^location-.+/) && !key.match(/location-description/))) {
 			continue;
 		}
-		if (key === 'photo') {
+		if (key === 'file') {
 			args_global[key] = args_global[key].substr(args_global[key].lastIndexOf('\\') + 1); // strip path
 		}
 

@@ -54,6 +54,11 @@
 	<!-- Modernizer library -->
 	<script src="lib/modernizr-2.7.1.min.js"></script>
 
+	<!-- Libraries to support image resizing on client -->
+	<script src="lib/megapix-image.js"></script>
+	<script src="lib/exif.js"></script>
+	<script src="lib/canvas-to-blob.min.js"></script>
+
 	<!-- custom CSS -->
 	<link rel="stylesheet" href="css/style.css" type="text/css" />
 
@@ -153,7 +158,6 @@
 				<div class="row photo">
 					<label for="rupture-photo">Photo</label>
 					<span class="launchapp">Choose...</span>
-					<input type="hidden" name="MAX_FILE_SIZE" value="2000000" />
 					<input type="file" name="photo" id="rupture-photo" accept="image/*" />
 				</div>
 				<div class="row">
@@ -220,7 +224,6 @@
 				<div class="row photo">
 					<label for="liquefaction-photo">Photo</label>
 					<span class="launchapp">Choose...</span>
-					<input type="hidden" name="MAX_FILE_SIZE" value="2000000" />
 					<input type="file" name="photo" id="liquefaction-photo" accept="image/*" />
 				</div>
 				<div class="row">
@@ -284,7 +287,6 @@
 				<div class="row photo">
 					<label for="landslide-photo">Photo</label>
 					<span class="launchapp">Choose...</span>
-					<input type="hidden" name="MAX_FILE_SIZE" value="2000000" />
 					<input type="file" name="photo" id="landslide-photo" accept="image/*" />
 				</div>
 				<div class="row">
@@ -356,7 +358,6 @@
 				<div class="row photo">
 					<label for="tsunami-photo">Photo</label>
 					<span class="launchapp">Choose...</span>
-					<input type="hidden" name="MAX_FILE_SIZE" value="2000000" />
 					<input type="file" name="photo" id="tsunami-photo" accept="image/*" />
 				</div>
 				<div class="row">
@@ -410,7 +411,6 @@
 				<div class="row photo">
 					<label for="lifelines-photo">Photo</label>
 					<span class="launchapp">Choose...</span>
-					<input type="hidden" name="MAX_FILE_SIZE" value="2000000" />
 					<input type="file" name="photo" id="lifelines-photo" accept="image/*" />
 				</div>
 				<div class="row">
@@ -496,7 +496,6 @@
 				<div class="row photo">
 					<label for="building-photo">Photo</label>
 					<span class="launchapp">Choose...</span>
-					<input type="hidden" name="MAX_FILE_SIZE" value="2000000" />
 					<input type="file" name="photo" id="building-photo" accept="image/*" />
 				</div>
 				<div class="row">
@@ -581,7 +580,6 @@
 				<div class="row photo">
 					<label for="general-photo">Photo</label>
 					<span class="launchapp">Choose...</span>
-					<input type="hidden" name="MAX_FILE_SIZE" value="2000000" />
 					<input type="file" name="photo" id="general-photo" accept="image/*" />
 				</div>
 				<div class="row">

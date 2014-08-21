@@ -137,6 +137,12 @@ fieldset ul.inputs li {
 	font-size: .75em;
 }
 
+canvas {
+	max-height: 204px;
+	max-width: 272px;
+	margin: 3em 0 1em 12px;
+}
+
 /* location info and map */
 .location {
 	margin: .5em 0 .75em 12px;

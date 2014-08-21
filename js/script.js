@@ -131,11 +131,10 @@ function initClickHandlers() {
 		}
 	});
 
-	// echo photo
-	$('[name="photo"]').bind('change', function() {
-		var file = $(this).get(0).files[0];
-		$(this).parent().find('p').remove(); // remove photo previously echo'd
-		$(this).after('<p>' + file.name + ' (' + Math.round(file.size * 10 / 1000) / 10 + ' kB)</p>'); // echo photo user selected
+	// attach listener for user adding a photo
+	$('[name="photo"]').on('change', function(e) {
+		var file = e.target.files[0]; // file pointer obj
+		loadImage(file);
 	});
 
 	// start sync
@@ -168,7 +167,6 @@ function initClickHandlers() {
 		}
 
 		// get selected features
-
 		$.ajax({
 			url: 'features.json.php?' + qs,
 			dataType: 'jsonp',
@@ -357,7 +355,7 @@ function createPopup(feature, layer) {
 	}
 	if (properties.attachment) {
 		// use thumbnail photo created during upload
-		img = properties.attachment.replace(/\.(jpe?g|gif|png)$/i, "-tn.png"),
+		img = properties.attachment.replace(/\.(jpe?g|gif|png)$/i, "-tn.png");
 		//html += '<a href="#photo" data-fieldnotes-src="' + properties.attachment + '">';
 		html += '<img src="' + img + '" height="125" alt="site photo" />';
 		//html += '</a>';
@@ -515,13 +513,16 @@ function storeRecord(querystring) {
 	// store record in localStorage (and insert in db if user is online)
 	localStorage[key] = record;
 	if (navigator.onLine) {
-		var file_input_id = screen_id + '-photo';
-		if ($(file_input_id).attr('value')) { // user including a photo
-			var filename = $(file_input_id).attr('value'),
-				ext = filename.substr(filename.lastIndexOf('.') + 1);
+		// upload photo if included
+		var file_id = screen_id.substr(1) + '-photo',
+			file = document.getElementById(file_id).files[0];
+		if (file) {
+			var ext = file.name.substr(file.name.lastIndexOf('.') + 1).toLowerCase();
+			// append filename to query string so it gets inserted in db
 			record += '&photo=' + key + '.' + ext;
-			uploadPhoto(file_input_id, key);
+			uploadPhoto(file, key);
 		}
+		// insert db record
 		insertRecord(key, record);
 	}
 
@@ -586,29 +587,70 @@ function getRecords() {
 	return records;
 }
 
+// Read file and render it to canvas
+function loadImage(file) {
+	// Prevent any non-image file type from being read.
+	if (!file.type.match(/image.*/)) {
+		return;
+	}
+
+	// setup canvas elem
+	var screen_id = localStorage.screen,
+		canvas_id = screen_id.substr(1) + '-' + 'canvas';
+
+	// remove any previous canvas, p elems
+	$('#' + canvas_id).remove();
+	$(screen_id + ' .photo p').remove();
+	
+	$(screen_id + ' .photo')
+		.append('<p>' + file.name + ' (' + Math.round(file.size * 10 / 1000) / 10 + ' kB)</p>')
+		.append('<canvas id="' + canvas_id + '"></canvas>');
+
+	// use library to read and render img - overcomes iOS resolution limitation and makes rotating / resizing easy
+	// https://github.com/stomita/ios-imagefile-megapixel
+	// also get img orientation from EXIF data
+	EXIF.getData(file, function() {
+		var canvas = document.getElementById(canvas_id),
+			orientation = EXIF.getTag(this, 'Orientation'),
+			mpImg = new MegaPixImage(file),
+			max_size = 800;
+		mpImg.render(canvas, { maxWidth: max_size, maxHeight: max_size, orientation: orientation });
+	});
+}
+
 
 // Upload attached photo
-function uploadPhoto(input_id, photo_id) {
-	var formdata = new FormData(); // http://stackoverflow.com/questions/5392344/sending-multipart-formdata-with-jquery-ajax
-	formdata.append('photo', $(input_id).get(0).files[0]);
-	formdata.append('name', photo_id);
+function uploadPhoto(file, basename) {
+	// grab contents of canvas element (resized img)
+	var screen_id = localStorage.screen,
+		canvas_id = screen_id.substr(1) + '-' + 'canvas',
+		canvas = document.getElementById(canvas_id);
+	
+	canvas.toBlob(function(imgblob) {
+		// construct a set of key/value pairs representing form fields and their values
+		// http://stackoverflow.com/questions/5392344/sending-multipart-formdata-with-jquery-ajax;
+		var formdata = new FormData();
+		formdata.append('photo', imgblob, file.name);
+		formdata.append('name', basename);
 
-	$('#results p').html('<img src="img/loading.gif" width="16" height="16" /> Uploading photo...');
+		$('#results p').html('<img src="img/loading.gif" width="16" height="16" /> Uploading photo...');
 
-	$.ajax({
-		url: 'upload.php',
-		type: 'POST',
-		data: formdata,
-		cache: false,
-		contentType: false, // when using FormData, must tell jQuery not to set contentType
-		processData: false // when using FormData, must tell jQuery not to process the data
-	}).done(function(error) {
-		if (error) {
-			$('#results p').html('<img src="img/error.png" width="16" height="16" /> ' + error);
-		} else {
-			$('#results p').html('<img src="img/ok.png" width="16" height="16" /> Photo uploaded successfully');
-		}
-	});
+		$.ajax({
+			url: 'upload.php',
+			type: 'POST',
+			data: formdata,
+			cache: false,
+			contentType: false, // prevent jQuery from setting contentType
+			processData: false // prevent jQuery from transforming data into querystring
+		}).done(function(error) {
+			if (error) {
+				$('#results p').html('<img src="img/error.png" width="16" height="16" /> ' + error);
+			} else {
+				$('#results p').html('<img src="img/ok.png" width="16" height="16" /> Photo uploaded successfully');
+			}
+		});
+
+	}, file.type);
 }
 
 
@@ -771,6 +813,8 @@ function clearState(form) {
 	localStorage.removeItem('spoton_lat');
 	localStorage.removeItem('spoton_lon');
 
-	// remove reference to photo user uploaded
+	// remove references to photo user attached
 	$('#' + form + ' .photo p').remove();
+	$('#' + form + ' .photo canvas').remove();
+
 }

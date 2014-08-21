@@ -511,8 +511,7 @@ function storeRecord(querystring) {
 		record += localStorage.spoton;
 	}
 
-	// store record in localStorage (and insert in db if user is online)
-	localStorage[key] = record;
+	// store record (and insert in db if user is online)
 	if (navigator.onLine) {
 		// upload photo if included
 		var file_id = screen_hash.substr(1) + '-photo',
@@ -523,7 +522,10 @@ function storeRecord(querystring) {
 			record += '&photo=' + key + '.' + ext;
 			uploadPhoto(file, key);
 		}
-		// insert db record
+		// store record in localstorage
+		localStorage[key] = record;
+
+		// insert record in db
 		insertRecord(key, record);
 	}
 
@@ -605,7 +607,7 @@ function loadImage(file) {
 	// remove any previous canvas, p elems
 	$('#' + canvas_id).remove();
 	$(screen_hash + ' .photo p').remove();
-	
+
 	$(screen_hash + ' .photo')
 		.append('<p>' + file.name + ' (' + Math.round(file.size * 10 / 1000) / 10 + ' kB)</p>')
 		.append('<canvas id="' + canvas_id + '"></canvas>');
@@ -632,7 +634,7 @@ function uploadPhoto(file, basename) {
 	var screen_hash = localStorage.screen,
 		canvas_id = screen_hash.substr(1) + '-' + 'canvas',
 		canvas = document.getElementById(canvas_id);
-	
+
 	canvas.toBlob(function(imgblob) {
 		// construct a set of key/value pairs representing form fields and their values
 		// http://stackoverflow.com/questions/5392344/sending-multipart-formdata-with-jquery-ajax;

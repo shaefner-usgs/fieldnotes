@@ -124,7 +124,8 @@ function initClickHandlers() {
 		localStorage.show_map = show_map;
 	});
 
-	// prevent form submittal until location is determined (and disabled class is removed)
+	// prevent form submittal until disabled class is removed
+	// For ex, during geolocation and rendering of attached photo to canvas
 	$('form').on('click', '.record', function(e) {
 		if ($(this).hasClass('disabled')) {
 			e.preventDefault();
@@ -594,6 +595,9 @@ function loadImage(file) {
 		return;
 	}
 
+	// disable submit button until image is rendered in canvas
+	$('.record').addClass('disabled');
+
 	// setup canvas elem
 	var screen_id = localStorage.screen,
 		canvas_id = screen_id.substr(1) + '-' + 'canvas';
@@ -614,7 +618,10 @@ function loadImage(file) {
 			orientation = EXIF.getTag(this, 'Orientation'),
 			mpImg = new MegaPixImage(file),
 			max_size = 800;
-		mpImg.render(canvas, { maxWidth: max_size, maxHeight: max_size, orientation: orientation });
+		mpImg.render(canvas, { maxWidth: max_size, maxHeight: max_size, orientation: orientation }, function() {
+			// activate submit button
+			$('.record').removeClass('disabled');
+		});
 	});
 }
 

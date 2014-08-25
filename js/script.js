@@ -506,8 +506,11 @@ function storeRecord(querystring) {
 
 	var key = moment().valueOf(), // milliseconds since Unix epoch
 		screen_hash = localStorage.screen,
-		file_id = screen_hash.substr(1) + '-photo',
+		file_id = screen_hash.substr(1) + '-photo';
+
+	if (document.getElementById(file_id)) {
 		file = document.getElementById(file_id).files[0];
+	}
 
 	// add extra params to querystring that get stored in db
 	if (file) {
@@ -520,6 +523,10 @@ function storeRecord(querystring) {
 		querystring += localStorage.spoton;
 	}
 
+	/*TO DO:
+		it's conceivable that a photo upload could fail but get still get it's filename inserted in the db
+		store photo contents in localstorage as well as the form details
+	*/
 	// store record in localstorage (and insert in db / upload photo if user is online)
 	localStorage[key] = querystring;
 	if (navigator.onLine) {

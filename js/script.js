@@ -29,17 +29,24 @@ var initView = {
 			records = getRecords(),
 			num_records = Object.keys(records).length;
 
-		$('#operator').appendTo('#user').prop('type', 'email'); // move operator field back to home screen and change back to email
-		$('#syncrecords a span').remove(); // remove any previous sync msg
+		// move operator field back to home screen and change back to email
+		$('#operator').appendTo('#user').prop('type', 'email');
+		// remove any previous sync msg
+		$('#syncrecords a span').remove();
 		$('#syncrecords a').append(' <span>' + num_records + ' record'.pluralize(num_records) + '</span>');
 	},
 	form: function() {
 		var screen_hash = initView.setScreen();
 
-		$('#operator, #hidden-fields').appendTo(screen_hash + ' form'); // move operator and hidden fields to screen (form) user is viewing
-		$('#operator').prop('type', 'text'); // change to type text to prevent html5 validation from failing on non-email (not enforced)
-		$('#form-name').val(screen_hash.substr(1)); // store form-name in hidden field
-		if (localStorage.spoton_site && !localStorage[screen_hash.substr(1) + '-site']) { // set 'Site' field to Spoton site if user hasn't already overridden it
+		// move operator and hidden fields to screen (form) user is viewing
+		$('#operator, #hidden-fields').appendTo(screen_hash + ' form');
+		// change to type text to prevent html5 validation from failing on non-email (not enforced)
+		$('#operator').prop('type', 'text');
+		// store form-name in hidden field
+		$('#form-name').val(screen_hash.substr(1));
+
+		// set 'Site' field to Spoton site if user hasn't already overridden it
+		if (localStorage.spoton_site && !localStorage[screen_hash.substr(1) + '-site']) {
 			$(screen_hash + '-site').val(localStorage.spoton_site);
 		}
 		if (navigator.onLine) { // show photo upload only if user online
@@ -52,10 +59,11 @@ var initView = {
 	features: function() {
 		var screen_hash = initView.setScreen();
 
+		// disable buttons if offline
 		if (navigator.onLine) {
 			$('#features li a').removeClass('disabled').not('.download').removeAttr('target');
 			$('#featurestatus').html('');
-		} else { // disable buttons if offline
+		} else {
 			$('#features li a')
 				.addClass('disabled')
 				.attr('target', '_blank') // add target so that emy doesn't intercept link (so preventDefault works)
@@ -94,7 +102,8 @@ var initView = {
 		var elem = emy.getSelectedView(),
 			screen_hash = '#' + elem.id;
 
-		localStorage.screen = screen_hash; // save screen user is viewing
+		// save screen user is viewing
+		localStorage.screen = screen_hash;
 		return screen_hash;
 	}
 };
@@ -309,7 +318,8 @@ function addFeatureLayer(markers) {
 		map.addLayer(cluster);
 		cluster.addLayer(marker_layers[layer_name]);
 		map.fitBounds(cluster.getBounds());
-	} else { // no markers, reset map view
+	} else {
+		// no markers, reset map view
 		map.locate({setView: true, maxZoom: 6});
 	}
 }
@@ -404,7 +414,8 @@ function setLocation(_position) {
 		gmt_offset = timestamp.getTimezoneOffset() / 60 * -1,
 		lat, lon;
 
-  if (ts.toString().length === 16) { // if timestamp is in milliseconds (e.g. iOS 6), reset to sec.
+	// if timestamp is in milliseconds (e.g. iOS 6), reset to sec.
+  if (ts.toString().length === 16) {
 		ts = ts / 1000;
   }
 
@@ -415,7 +426,8 @@ function setLocation(_position) {
 	$('#lon').val(_position.coords.longitude);
 	$('#accuracy').val(_position.coords.accuracy);
 	$('#z').val(_position.coords.altitude);
-	$('#zaccuracy').val(_position.coords.altitudeAccuracy); // no idea why, but this param MUST be set last...anything after it not filled in
+	// no idea why, but this param MUST be set last...anything after it not filled in
+	$('#zaccuracy').val(_position.coords.altitudeAccuracy);
 
 	// use SpotOn location if available
 	if (localStorage.spoton_lat && localStorage.spoton_lon) {
@@ -451,7 +463,8 @@ function displayLocation(lat, lon, timestamp) {
 		.after('<ul id="options" class="normal"></ul>');
 
 	if (!spoton) {
-		$('#options').append('<li><a href="#" target="_blank" id="refresh">Refresh</a></li>'); // refresh link (add target="_blank" so that emy doesn't intercept links)
+		// refresh link (add target="_blank" so that emy doesn't intercept links)
+		$('#options').append('<li><a href="#" target="_blank" id="refresh">Refresh</a></li>');
 	}
 
 	// display map if user online
@@ -459,7 +472,8 @@ function displayLocation(lat, lon, timestamp) {
 		var map_url = 'http://api.tiles.mapbox.com/v3/shaefner.map-8sg8c9nv/pin-m-star+cc3311(' + lon + ',' + lat + ')/' + lon + ',' + lat + ',13/544x544.jpg',
 			map_app = 'http://maps.apple.com/?q=' + lat + ',' + lon + '&t=m&z=13';
 
-		$('#options').append('<li><a href="#" target="_blank" id="showmap">Hide Map</a></li>'); // map toggle (add target="_blank" so that emy doesn't intercept links)
+		// map toggle (add target="_blank" so that emy doesn't intercept links)
+		$('#options').append('<li><a href="#" target="_blank" id="showmap">Hide Map</a></li>');
 		$('#options').after(
 			'<div id="locationmap">' + // map
 				'<img src="' + map_url + '" width="272" height="272" alt="map showing current location">' +
@@ -484,7 +498,8 @@ function locationError(_error) {
 
 	$('#coords').append(
 		'<p class="error">' + errors[_error.code] + '</p>' +
-		'<ul id="options" class="normal"><li><a href="#" target="_blank" id="refresh">Try again</a></li></ul>' // add target="_blank" so that emy doesn't intercept links
+		// add target="_blank" so that emy doesn't intercept links
+		'<ul id="options" class="normal"><li><a href="#" target="_blank" id="refresh">Try again</a></li></ul>'
 	);
 
 	// show spoton location if available instead of error message
@@ -509,6 +524,7 @@ function storeRecord(querystring) {
 		file_id = screen_hash.substr(1) + '-photo',
 		file;
 
+	// not all forms have file upload, so check
 	if (document.getElementById(file_id)) {
 		file = document.getElementById(file_id).files[0];
 	}
@@ -557,7 +573,8 @@ function insertRecord(key, querystring) {
 				$('#sync .success').html(db_successes + ' record'.pluralize(db_successes) + ' synced');
 			}
 		}
-		if (!error) { // remove from localStorage on successful db insert
+		if (!error) {
+			// remove from localStorage on successful db insert
 			localStorage.removeItem(key);
 		}
 	});
@@ -568,12 +585,14 @@ function insertRecord(key, querystring) {
 function syncRecords() {
 	var records, record, key;
 
-	db_errors = 0; // reset error / success vars from any previous inserts
+	// reset error / success vars from any previous inserts
+	db_errors = 0;
 	db_successes = 0;
 
 	records = getRecords();
 	for (key in records) {
-		record = records[key] + '&recorded=' + encodeURIComponent(key); // add recorded time to querystring
+		// add recorded time to querystring
+		record = records[key] + '&recorded=' + encodeURIComponent(key);
 		insertRecord(key, record);
 	}
 }
@@ -590,7 +609,8 @@ function getRecords() {
 		key = localStorage.key(i);
 		if ( // stored records use date string for key
 			key.match(/^\d{13}$/) ||
-			key.match(/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/) // deprecated format; kept for compatibility w/ previously stored records
+			// deprecated format; kept for compatibility w/ previously stored records
+			key.match(/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/)
 		) {
 			records[key] = localStorage[key];
 		}
@@ -677,7 +697,8 @@ function returnHtml() {
 	var key, label,
 		return_html = '',
 		form_name = args_global['form-name'],
-		labels = { // 'friendly' field names for return screen
+		// setup 'friendly' field names to substitute on 'Recorded' return screen (form name w/ nested name-value pairs)
+		labels = {
 			"rupture": {
 				"surface": "rupture",
 				"offset[]": "feature"
@@ -697,18 +718,21 @@ function returnHtml() {
 			continue;
 		}
 		if (key === 'file') {
-			args_global[key] = args_global[key].substr(args_global[key].lastIndexOf('\\') + 1); // strip path
+			// strip path
+			args_global[key] = args_global[key].substr(args_global[key].lastIndexOf('\\') + 1);
 		}
 
-		// use 'friendly' fieldnames
+		// apply 'friendly' fieldnames
 		label = key.capitalize();
 		if (key === 'location-description') {
 			label = 'Location';
 		}
+		// loop thru labels configured above
 		else if (labels[form_name] && typeof labels[form_name][key] === 'string') {
 			label = labels[form_name][key].capitalize();
 		}
-		else if (label.match(/\[\]$/)) { // remove array notation '[]' from end of key
+		// remove array notation '[]' from end of key
+		else if (label.match(/\[\]$/)) {
 			label = key.substr(0, key.length - 2).capitalize();
 		}
 
@@ -745,15 +769,21 @@ function initSaveState() {
 	// onChange: pulldown menus and input fields--need change event for input text in case user doesn't type changes (e.g. a number field)
 	$('input, select').change(function() {
 		elem_id = $(this).attr('id');
-		if ($(this).attr('type') === 'checkbox') { // checkboxes
+		// checkboxes
+		if ($(this).attr('type') === 'checkbox') {
 			storeBoolean(elem_id);
-		} else if ($(this).attr('type') === 'radio') { // radio buttons
+		}
+		// radio buttons
+		else if ($(this).attr('type') === 'radio') {
 			storeBoolean(elem_id);
 			$(this).parent().siblings().children('input').each(function(i) {
+				// need to store value of "other" (non-selected) radio button
 				other_elem_id = $(this).attr('id');
-				storeBoolean(other_elem_id); // need to store value of "other" radio button
+				storeBoolean(other_elem_id);
 			});
-		} else { // pulldown menus and text input (incl. number, email, etc)
+		}
+		// pulldown menus and text input (incl. number, email, etc)
+		else {
 			localStorage[elem_id] = $(this).val();
 		}
 	});
@@ -798,14 +828,17 @@ function resumeState() {
 	// set input fields (checkbox, radio, text)
 	$('input').each(function() {
 		elem_id = $(this).attr('id');
-		if ($(this).attr('type') === 'checkbox' || $(this).attr('type') === 'radio') { // checkboxes and radio buttons
+		// checkboxes and radio buttons
+		if ($(this).attr('type') === 'checkbox' || $(this).attr('type') === 'radio') {
 			is_checked = parseInt(localStorage[elem_id], 10);
 			if (is_checked) {
 				$(this).attr('checked', true);
 			} else {
 				$(this).attr('checked', false);
 			}
-		} else if ($(this).attr('type') !== 'file') { // text, number, email, etc. (can't manipulate file obj)
+		}
+		// text, number, email, etc. (can't manipulate file obj)
+		else if ($(this).attr('type') !== 'file') {
 			$(this).val(localStorage[elem_id]);
 		}
 	});
@@ -815,9 +848,11 @@ function resumeState() {
 // Clear form field values from localStorage when form submitted
 function clearState(form) {
 	var id,
-		elem = $('#' + form + ' input, #' + form + ' select, #' + form + ' textarea'); // get form elements by type
+		// get form elements by type
+		elem = $('#' + form + ' input, #' + form + ' select, #' + form + ' textarea');
 
-	$(elem).each(function() { // loop thru form elements
+	// loop thru form elements
+	$(elem).each(function() {
 		id = $(this).attr('id');
 		if (id !== 'operator') {
 			localStorage.removeItem(id);

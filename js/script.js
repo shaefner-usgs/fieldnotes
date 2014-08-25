@@ -506,7 +506,8 @@ function storeRecord(querystring) {
 
 	var key = moment().valueOf(), // milliseconds since Unix epoch
 		screen_hash = localStorage.screen,
-		file_id = screen_hash.substr(1) + '-photo';
+		file_id = screen_hash.substr(1) + '-photo',
+		file;
 
 	if (document.getElementById(file_id)) {
 		file = document.getElementById(file_id).files[0];

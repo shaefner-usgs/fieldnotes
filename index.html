@@ -95,6 +95,7 @@
 			<li><a href="#tsunami">Tsunami</a></li>
 			<li><a href="#lifelines">Lifelines</a></li>
 			<li><a href="#building">Building</a></li>
+      <li><a href="#deployment">Deployment</a></li>
 			<li><a href="#general">General</a></li>
 		</ul>
 
@@ -567,6 +568,54 @@
 			<button class="mainButton record" href="#" type="submit">Record</button>
 		</form>
 	</section>
+
+  <!-- Deployment form -->
+
+  <section id="deployment" data-title="Deployment" class="panel" data-onshow="initView.form()">
+		<form name="deployment" action="online.html" method="get">
+      <fieldset>
+				<div class="row">
+					<label for="deployment-site">Site</label>
+					<input type="text" name="site" id="deployment-site" placeholder="site name" autocapitalize="off" autocorrect="off" required="required">
+				</div>
+				<div class="row photo">
+					<label for="deployment-photo">Photo</label>
+					<span class="launchapp">Choose...</span>
+					<input type="file" name="file" id="deployment-photo" accept="image/*" />
+				</div>
+				<div class="row">
+					<label for="deployment-location">Location</label>
+					<input type="text" name="location-description" id="deployment-location" placeholder="description">
+				</div>
+			</fieldset>
+			<fieldset>
+				<div class="row">
+					<label for="deployment-notes">Notes</label>
+					<textarea rows="5" name="notes" id="deployment-notes"></textarea>
+				</div>
+			</fieldset>
+      <fieldset>
+        <div class="row">
+					<label>Instrument Type</label>
+					<ul class="inputs normal">
+						<li><input type="checkbox" name="instrument[]" id="deployment-accelerometer" value="Accelerometer"> <label for="deployment-accelerometer">Accelerometer</label></li>
+						<li><input type="checkbox" name="instrument[]" id="deployment-broadband" value="Broadband"> <label for="deployment-broadband">Broadband</label></li>
+						<li><input type="checkbox" name="instrument[]" id="deployment-geophone" value="Geophone"> <label for="deployment-geophone">Geophone</label></li>
+						<li><input type="checkbox" name="instrument[]" id="deployment-gps" value="GPS"> <label for="deployment-gps">GPS</label></li>
+						<li><input type="checkbox" name="instrument[]" id="deployment-other" value="Other"> <label for="deployment-other">Other</label></li>
+					</ul>
+				</div>
+        <div class="row">
+					<label>Communications</label>
+					<ul class="inputs normal">
+						<li><input type="radio" name="communications" id="deployment-communications-yes" value="yes"> <label for="deployment-communications-yes">Yes</label></li>
+						<li><input type="radio" name="communications" id="deployment-communications-no" value="no"> <label for="deployment-communications-no">No</label></li>
+					</ul>
+				</div>
+      </fieldset>
+			<button class="mainButton record" href="#" type="submit">Record</button>
+    </form>
+  </section>
 
 	<!-- General form -->
 

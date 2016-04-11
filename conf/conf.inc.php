@@ -1,6 +1,6 @@
 <?php
 
-/* 
+/*
  * Configuration params - feel free to change these
  */
 
@@ -10,8 +10,8 @@ $convert = '/usr/bin/convert';
 // Maximum upload filesize
 $maxsize = 2000000;
 
-/* 
- * Params used by multiple files in app 
+/*
+ * Params used by multiple files in app
  */
 
 // set time zone for recorded / synced db fields to UTC (timestamp from device's geolocation is stored in localtime)
@@ -25,6 +25,7 @@ $tables = array(
 	'tsunami' => 'Tsunami',
 	'lifelines' => 'Lifelines',
 	'building' => 'Building',
+  'deployment' => 'Deployment',
 	'general' => 'General'
 );
 

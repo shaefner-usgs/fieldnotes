@@ -206,7 +206,7 @@ section fieldset > .row > input:not([type|=radio]):not([type|=checkbox]) {
 /* Results screen
 ----------------------------------------- */
 
-#results > .row > label {
+#results .row > label {
   /* need this for ellipsis to work when names are too long */
   width: 115px;
 }

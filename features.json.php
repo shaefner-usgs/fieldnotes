@@ -191,6 +191,10 @@ function createJsonFeed($db, $tables, $params) {
 	if ($features) {
 		$geojson = array(
 			"type" => "FeatureCollection",
+      "geometryType" => "esriGeometryPoint",
+      "spatialReference" => array(
+        "wkid" => 4326
+      ),
 			"features" => $features
 		);
 	}

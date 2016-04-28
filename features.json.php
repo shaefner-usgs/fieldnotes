@@ -1,5 +1,7 @@
 <?php
 
+include 'cors.inc.php';
+
 // script creates geoJSON file of recorded features
 
 header('cache-control: no-cache');

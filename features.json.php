@@ -16,7 +16,7 @@ $params = parseGetVals();
 if ($params['content'] === 'all') {
   array_push($tables, 'checkin');
 } else if ($params['content'] === 'checkins') {
-  $tables = ['checkin'];
+  $tables = array('checkin');
 }
 
 $json_array = createJsonFeed($db, $tables, $params);

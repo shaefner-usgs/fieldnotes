@@ -11,6 +11,14 @@ include_once 'conf/conf.inc.php';
 include_once 'conf/db.inc.php';
 
 $params = parseGetVals();
+
+// $tables array is set to all tables with observations (everything but 'checkin')
+if ($params['content'] === 'all') {
+  array_push($tables, 'checkin');
+} else if ($params['content'] === 'checkins') {
+  $tables = ['checkin'];
+}
+
 $json_array = createJsonFeed($db, $tables, $params);
 
 // Create json object from array and display
@@ -37,41 +45,51 @@ if ($params['callback']) {
 
 function parseGetVals() {
 	$params = array();
-	$periods = array(
-		'hour' => '1 hour ago',
-		'day' => '1 day ago',
-		'week' => '7 days ago',
-		'month' => '1 month ago',
-		'quarter' => '3 months ago'
-	);
-	$before = time();
-	$after = strtotime('2011-01-01');
-	$allowed = '/^[\w,\@\.]+$/'; // Sanitize input parameter (alphanumerics + a few others only)
 
+  // Set deafult values
+  $after = strtotime('2011-01-01');
+	$before = time();
+  $callback = null;
+  $content = 'features';
+  $operator = '%'; // mysql wildcard
+
+  $allowed = '/^[\w,\@\.]+$/'; // Sanitize input parameter (alphanumerics + a few others only)
+  $periods = array(
+    'hour' => '1 hour ago',
+    'day' => '1 day ago',
+    'week' => '7 days ago',
+    'month' => '1 month ago',
+    'quarter' => '3 months ago'
+  );
+
+  if (isSet($_GET['after']) && (preg_match($allowed, $_GET['after']))) {
+    $after = $_GET['after'];
+  }
 	if (isSet($_GET['before']) && (preg_match($allowed, $_GET['before']))) {
 		$before = $_GET['before'];
-	}
-	if (isSet($_GET['after']) && (preg_match($allowed, $_GET['after']))) {
-		$after = $_GET['after'];
 	}
 	if (isSet($_GET['between']) && (preg_match($allowed, $_GET['between']))) {
 		list($after, $before) = preg_split('/\s?,\s?/', $_GET['between']);
 	}
-
-	$params['before_sql'] = date('Y-m-d H:i:s', $before);
-	$params['after_sql'] = date('Y-m-d H:i:s', $after);
-	$params['operator'] = '%'; // mysql wildcard
-
-	if (isSet($_GET['period']) && (preg_match($allowed, $_GET['period']))) {
-		$period = $_GET['period'];
-		$params['after_sql'] = date("Y-m-d H:i:s", strtotime($periods[$period]));
-	}
 	if (isSet($_GET['callback']) && (preg_match($allowed, $_GET['callback']))) {
-		$params['callback'] = $_GET['callback'];
+		$callback = $_GET['callback'];
 	}
+  if (isSet($_GET['content']) && (preg_match('/^(all|checkins)$/', $_GET['content']))) {
+    $content = $_GET['content'];
+  }
 	if (isSet($_GET['operator']) && (preg_match($allowed, $_GET['operator']))) {
-		$params['operator'] = $_GET['operator'];
+		$operator = $_GET['operator'];
 	}
+  if (isSet($_GET['period']) && (preg_match($allowed, $_GET['period']))) {
+    $period = $_GET['period'];
+    $after = strtotime($periods[$period]);
+  }
+
+	$params['after'] = date('Y-m-d H:i:s', $after);
+  $params['before'] = date('Y-m-d H:i:s', $before);
+  $params['callback'] = $callback;
+  $params['content'] = $content;
+	$params['operator'] = $operator;
 
 	return $params;
 }
@@ -91,7 +109,7 @@ function createJsonFeed($db, $tables, $params) {
 				AND ((location.lat != '' AND location.lon != '') OR (spoton.latitude != '' AND spoton.longitude != ''))
 				AND operator LIKE '%s'
 			ORDER BY recorded ASC;",
-			$table, $params['after_sql'], $params['before_sql'], $params['after_sql'], $params['before_sql'], $params['operator']);
+			$table, $params['after'], $params['before'], $params['after'], $params['before'], $params['operator']);
 
 		$rsFeatures = mysql_query($query_rsFeatures, $db) or die(mysql_error());
 
@@ -189,17 +207,14 @@ function createJsonFeed($db, $tables, $params) {
 
 	}
 
-	$geojson = '';
-	if ($features) {
-		$geojson = array(
-			"type" => "FeatureCollection",
-      "geometryType" => "esriGeometryPoint",
-      "spatialReference" => array(
-        "wkid" => 4326
-      ),
-			"features" => $features
-		);
-	}
+	$geojson = array(
+		"type" => "FeatureCollection",
+    "geometryType" => "esriGeometryPoint",
+    "spatialReference" => array(
+      "wkid" => 4326
+    ),
+		"features" => $features
+	);
 	return $geojson;
 }
 

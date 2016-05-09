@@ -14,9 +14,9 @@ $params = parseGetVals();
 
 // $tables array is set to all tables with observations (everything but 'checkin')
 if ($params['content'] === 'all') {
-  array_push($tables, 'checkin');
+  $tables['checkin'] = 'Checkin'; // add checkins
 } else if ($params['content'] === 'checkins') {
-  $tables = array('checkin');
+  $tables = array('checkin' => 'Checkin'); // set to checkins only
 }
 
 $json_array = createJsonFeed($db, $tables, $params);
@@ -50,7 +50,7 @@ function parseGetVals() {
   $after = strtotime('2011-01-01');
 	$before = time();
   $callback = null;
-  $content = 'features';
+  $content = 'observations';
   $operator = '%'; // mysql wildcard
 
   $allowed = '/^[\w,\@\.]+$/'; // Sanitize input parameter (alphanumerics + a few others only)

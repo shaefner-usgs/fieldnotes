@@ -231,7 +231,7 @@ function initOperatorField() {
 
 // Initialize map of recorded features
 function initMap() {
-	var mapq_osm, mapq_sat, baseMaps, scaleControl;
+	var esri_places, esri_terrain, esri_sat, esri_imagery, options, baseMaps, scaleControl;
 
 	// Leaflet init
 	map = new L.Map('map', {
@@ -243,23 +243,31 @@ function initMap() {
 		scrollWheelZoom: false
 	});
 
-	// Mapquest base layers
-	mapq_osm = new L.TileLayer('http://{s}.mqcdn.com/tiles/1.0.0/osm/{z}/{x}/{y}.png', {
-		maxZoom: 18,
-		subdomains: ['otile1','otile2','otile3','otile4'],
-		detectRetina: true
-	});
-	mapq_sat = new L.TileLayer('http://{s}.mqcdn.com/tiles/1.0.0/sat/{z}/{x}/{y}.jpg', {
-		maxZoom: 18,
-		subdomains: ['oatile1','oatile2','oatile3','oatile4'],
-		detectRetina: true
-	});
-	map.addLayer(mapq_osm);
+  options = {
+    maxZoom: 18,
+    subdomains: ['server', 'services'],
+    detectRetina: true
+  };
+
+	// Esri base layers
+	esri_terrain = L.tileLayer('https://{s}.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}',
+    options
+	);
+	esri_imagery = L.tileLayer('https://{s}.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+		options
+	);
+  esri_places = L.tileLayer('http://{s}.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}',
+    options
+  );
+
+  esri_sat = L.layerGroup([esri_imagery, esri_places]);
+
+	map.addLayer(esri_terrain);
 
 	// Add layers / scale controllers to map
 	baseMaps = {
-		"Map": mapq_osm,
-		"Satellite": mapq_sat
+		"Terrain": esri_terrain,
+		"Satellite": esri_sat
 	};
 	layersControl = new L.Control.Layers(baseMaps, null, { collapsed: false });
 	scaleControl = new L.Control.Scale();
@@ -868,5 +876,4 @@ function clearState(form) {
 	// remove references to photo user attached
 	$('#' + form + ' .photo p').remove();
 	$('#' + form + ' .photo canvas').remove();
-
 }

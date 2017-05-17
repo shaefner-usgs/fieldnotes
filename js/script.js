@@ -250,13 +250,13 @@ function initMap() {
   };
 
 	// Esri base layers
-	esri_terrain = L.tileLayer('https://{s}.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}',
+	esri_terrain = L.tileLayer('httpss://{s}.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}',
     options
 	);
-	esri_imagery = L.tileLayer('https://{s}.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+	esri_imagery = L.tileLayer('httpss://{s}.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
 		options
 	);
-  esri_places = L.tileLayer('http://{s}.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}',
+  esri_places = L.tileLayer('https://{s}.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}',
     options
   );
 
@@ -477,8 +477,8 @@ function displayLocation(lat, lon, timestamp) {
 
 	// display map if user online
 	if (navigator.onLine) {
-		var map_url = 'http://api.tiles.mapbox.com/v3/shaefner.map-8sg8c9nv/pin-m-star+cc3311(' + lon + ',' + lat + ')/' + lon + ',' + lat + ',13/544x544.jpg',
-			map_app = 'http://maps.apple.com/?q=' + lat + ',' + lon + '&t=m&z=13';
+		var map_url = 'https://api.tiles.mapbox.com/v3/shaefner.map-8sg8c9nv/pin-m-star+cc3311(' + lon + ',' + lat + ')/' + lon + ',' + lat + ',13/544x544.jpg',
+			map_app = 'https://maps.apple.com/?q=' + lat + ',' + lon + '&t=m&z=13';
 
 		// map toggle (add target="_blank" so that emy doesn't intercept links)
 		$('#options').append('<li><a href="#" target="_blank" id="showmap">Hide Map</a></li>');
@@ -649,7 +649,7 @@ function loadImage(file) {
 		.append('<canvas id="' + canvas_id + '"></canvas>');
 
 	// use library to read and render img - overcomes iOS resolution limitation and makes rotating / resizing easy
-	// https://github.com/stomita/ios-imagefile-megapixel
+	// httpss://github.com/stomita/ios-imagefile-megapixel
 	// also get img orientation from EXIF data
 	EXIF.getData(file, function() {
 		var canvas = document.getElementById(canvas_id),
@@ -673,7 +673,7 @@ function uploadPhoto(file, basename) {
 
 	canvas.toBlob(function(imgblob) {
 		// construct a set of key/value pairs representing form fields and their values
-		// http://stackoverflow.com/questions/5392344/sending-multipart-formdata-with-jquery-ajax;
+		// https://stackoverflow.com/questions/5392344/sending-multipart-formdata-with-jquery-ajax;
 		var formdata = new FormData();
 		formdata.append('photo', imgblob, file.name);
 		formdata.append('name', basename);
@@ -822,7 +822,7 @@ function resumeState() {
 			initView.home();
 		}
 		if (!window.location.hash) {
-			url = 'http://' + window.location.host + window.location.pathname + screen_hash;
+			url = 'https://' + window.location.host + window.location.pathname + screen_hash;
 			window.location.replace(url);
 		}
 	}

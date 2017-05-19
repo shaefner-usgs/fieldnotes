@@ -172,7 +172,7 @@
 					<select name="surface" id="rupture-surface" size="1">
 						<option value="">Choose one</option>
 						<option value="Scarp">Scarp</option>
-						<option value="En eschelon">En eschelon</option>
+						<option value="En echelon">En echelon</option>
 						<option value="Moletrack">Moletrack</option>
 					</select>
 				</div>
@@ -191,18 +191,31 @@
 			<h2>Vector Measurements</h2>
 			<fieldset>
 				<div class="row">
-					<label for="rupture-azimuth">Slip Azimuth</label>
-					<input type="number" min="0" max="360" name="azimuth" id="rupture-azimuth" placeholder="degrees">
+					<label for="rupture-strike">Strike Azimuth</label>
+					<input type="number" min="0" max="360" name="strike" id="rupture-strike" placeholder="degrees">
 				</div>
 				<div class="row">
-					<label for="rupture-plunge">Plunge</label>
-					<input type="number" min="0" max="360" name="plunge" id="rupture-plunge" placeholder="degrees">
+					<label for="rupture-azimuth">Slip Azimuth</label>
+					<input type="number" min="0" max="360" name="azimuth" id="rupture-azimuth" placeholder="degrees">
 				</div>
 				<div class="row">
 					<label for="rupture-length">Slip Length</label>
 					<input type="number" step="0.1" name="length" id="rupture-length" placeholder="meters">
 				</div>
+        <div class="row">
+					<label for="rupture-plunge">Plunge</label>
+					<input type="number" min="0" max="360" name="plunge" id="rupture-plunge" placeholder="degrees">
+				</div>
 			</fieldset>
+      <fieldset>
+        <div class="row">
+          <label>Afterslip measurement taken</label>
+          <ul class="inputs normal">
+						<li><input type="radio" name="afterslip" id="rupture-afterslip-yes" value="yes"> <label for="rupture-afterslip-yes">Yes</label></li>
+						<li><input type="radio" name="afterslip" id="rupture-afterslip-no" value="no"> <label for="rupture-afterslip-no">No</label></li>
+					</ul>
+        </div>
+      </fieldset>
 			<fieldset>
 				<div class="row">
 					<label for="rupture-notes">Notes</label>

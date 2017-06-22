@@ -250,10 +250,10 @@ function initMap() {
   };
 
 	// Esri base layers
-	esri_terrain = L.tileLayer('httpss://{s}.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}',
+	esri_terrain = L.tileLayer('https://{s}.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}',
     options
 	);
-	esri_imagery = L.tileLayer('httpss://{s}.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+	esri_imagery = L.tileLayer('https://{s}.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
 		options
 	);
   esri_places = L.tileLayer('https://{s}.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}',
@@ -649,7 +649,7 @@ function loadImage(file) {
 		.append('<canvas id="' + canvas_id + '"></canvas>');
 
 	// use library to read and render img - overcomes iOS resolution limitation and makes rotating / resizing easy
-	// httpss://github.com/stomita/ios-imagefile-megapixel
+	// https://github.com/stomita/ios-imagefile-megapixel
 	// also get img orientation from EXIF data
 	EXIF.getData(file, function() {
 		var canvas = document.getElementById(canvas_id),

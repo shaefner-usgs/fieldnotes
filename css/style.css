@@ -2,9 +2,13 @@
 body {
 	overflow-y: visible;
 }
-section.panel > h2, section.panel > form > h2  {
+section.panel > h2, section.panel > form > h2,
+section.panel > h3, section.panel > form > h3  {
 	margin: 0 0 2px 6px;
 	padding-top: 10px;
+}
+section.panel > h3, section.panel > form > h3  {
+  font-size: 14px;
 }
 section.panel > p, form > p, section ul.plaintext {
 	margin: .5em 6px;

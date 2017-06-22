@@ -6,7 +6,7 @@
 	<meta charset="utf-8">
 
 	<title>Fieldnotes</title>
-	<meta name="description" content="HTML5 app for scientists to record geologic features in the field">
+	<meta name="description" content="HTML5 app for scientists to record geologic observations in the field">
 	<meta name="author" content="Scott Haefner, USGS">
 
 	<meta name="HandheldFriendly" content="True">
@@ -75,7 +75,7 @@
 
 	<section id="home" data-title="Home" class="panel" selected="true" data-onshow="initView.home()">
 
-		<h2>Identify yourself</h2>
+		<h2>Identify Yourself</h2>
 		<fieldset>
 			<div class="row" id="user">
 				<label for="operator">Operator</label>
@@ -87,26 +87,26 @@
 			<li><a href="#checkin">Check-in</a></li>
 		</ul>
 
-		<h2>Record a feature</h2>
+		<h2>Record an Observation</h2>
 		<ul>
 			<li><a href="#rupture">Fault Rupture</a></li>
 			<li><a href="#liquefaction">Liquefaction</a></li>
 			<li><a href="#landslide">Landslide</a></li>
 			<li><a href="#tsunami">Tsunami</a></li>
-			<li><a href="#lifelines">Lifelines</a></li>
+			<li><a href="#lifelines">Lifeline</a></li>
 			<li><a href="#building">Building</a></li>
-      <li><a href="#deployment">Deployment</a></li>
+			<li><a href="#deployment">Instrument Deployment</a></li>
 			<li><a href="#general">General</a></li>
 		</ul>
 
-		<h2>Maps and Downloads</h2>
+		<h2>View and Download Observations</h2>
 		<ul>
-			<li><a href="#features">View Features</a></li>
+			<li><a href="#observations">View Observations</a></li>
 		</ul>
 
-		<h2>Sync</h2>
+		<h2>Sync Observations Recorded Offline</h2>
 		<ul id="syncrecords">
-			<li><a href="#sync">Sync Records</a></li>
+			<li><a href="#sync">Sync Observations</a></li>
 		</ul>
 
 		<div id="hidden-fields">
@@ -126,7 +126,7 @@
 
 	<section id="checkin" data-title="Check-in" class="panel" data-onshow="initView.form()">
 		<form name="checkin" action="online.html" method="get">
-			<p>You can check-in to record your location without mapping a feature.</p>
+			<p>You can check-in to record your location without mapping an observation.</p>
 			<fieldset>
 				<div class="row">
 					<label for="checkin-site">Site</label>
@@ -202,20 +202,20 @@
 					<label for="rupture-length">Slip Length</label>
 					<input type="number" step="0.1" name="length" id="rupture-length" placeholder="meters">
 				</div>
-        <div class="row">
+				<div class="row">
 					<label for="rupture-plunge">Plunge</label>
 					<input type="number" min="0" max="360" name="plunge" id="rupture-plunge" placeholder="degrees">
 				</div>
 			</fieldset>
-      <fieldset>
-        <div class="row">
-          <label>Afterslip measurement taken</label>
-          <ul class="inputs normal">
+			<fieldset>
+				<div class="row">
+					<label>Afterslip measurement taken</label>
+					<ul class="inputs normal">
 						<li><input type="radio" name="afterslip" id="rupture-afterslip-yes" value="yes"> <label for="rupture-afterslip-yes">Yes</label></li>
 						<li><input type="radio" name="afterslip" id="rupture-afterslip-no" value="no"> <label for="rupture-afterslip-no">No</label></li>
 					</ul>
-        </div>
-      </fieldset>
+				</div>
+			</fieldset>
 			<fieldset>
 				<div class="row">
 					<label for="rupture-notes">Notes</label>
@@ -413,9 +413,9 @@
 		</form>
 	</section>
 
-	<!-- Lifelines form -->
+	<!-- Lifeline form -->
 
-	<section id="lifelines" data-title="Lifelines" class="panel" data-onshow="initView.form()">
+	<section id="lifelines" data-title="Lifeline" class="panel" data-onshow="initView.form()">
 		<form name="lifelines" action="online.html" method="get">
 			<fieldset>
 				<div class="row">
@@ -551,7 +551,7 @@
 				</div>
 				<div class="row">
 					<label for="building-stories">Stories</label>
-					<input type="number" min="1" name="stories" id="building-stories" placeholder="before damage" />
+					<input type="number" min="1" name="stories" id="building-stories" placeholder="" />
 				</div>
 				<div class="row">
 					<label for="building-damage">Damage</label>
@@ -562,6 +562,16 @@
 						<option value="Moderate">Moderate</option>
 						<option value="Severe">Severe</option>
 						<option value="Total Collapse">Total Collapse</option>
+					</select>
+				</div>
+				<div class="row">
+					<label for="building-safety">Safety Assessment</label>
+					<select name="safety" id="building-safety" size="1">
+						<option value="">Choose One</option>
+						<option value="Red">Red &ndash; Unsafe</option>
+						<option value="Yellow">Yellow &ndash; Restricted Use</option>
+						<option value="Green">Green &ndash; Inspected</option>
+						<option value="None">None</option>
 					</select>
 				</div>
 				<div class="row">
@@ -582,11 +592,11 @@
 		</form>
 	</section>
 
-  <!-- Deployment form -->
+	<!-- Deployment form -->
 
-  <section id="deployment" data-title="Deployment" class="panel" data-onshow="initView.form()">
+	<section id="deployment" data-title="Instrument Deployment" class="panel" data-onshow="initView.form()">
 		<form name="deployment" action="online.html" method="get">
-      <fieldset>
+			<fieldset>
 				<div class="row">
 					<label for="deployment-site">Site</label>
 					<input type="text" name="site" id="deployment-site" placeholder="site name" autocapitalize="off" autocorrect="off" required="required">
@@ -601,8 +611,8 @@
 					<input type="text" name="location-description" id="deployment-location" placeholder="description">
 				</div>
 			</fieldset>
-      <fieldset>
-        <div class="row">
+			<fieldset>
+				<div class="row">
 					<label>Instrument Type</label>
 					<ul class="inputs normal">
 						<li><input type="checkbox" name="instrument[]" id="deployment-accelerometer" value="Accelerometer"> <label for="deployment-accelerometer">Accelerometer</label></li>
@@ -612,23 +622,23 @@
 						<li><input type="checkbox" name="instrument[]" id="deployment-other" value="Other"> <label for="deployment-other">Other</label></li>
 					</ul>
 				</div>
-        <div class="row">
+				<div class="row">
 					<label>Communications</label>
 					<ul class="inputs normal">
 						<li><input type="radio" name="communications" id="deployment-communications-yes" value="yes"> <label for="deployment-communications-yes">Yes</label></li>
 						<li><input type="radio" name="communications" id="deployment-communications-no" value="no"> <label for="deployment-communications-no">No</label></li>
 					</ul>
 				</div>
-      </fieldset>
-      <fieldset>
+			</fieldset>
+			<fieldset>
 				<div class="row">
 					<label for="deployment-notes">Notes</label>
 					<textarea rows="5" name="notes" id="deployment-notes"></textarea>
 				</div>
 			</fieldset>
 			<button class="mainButton record" href="#" type="submit">Record</button>
-    </form>
-  </section>
+		</form>
+	</section>
 
 	<!-- General form -->
 
@@ -659,12 +669,12 @@
 		</form>
 	</section>
 
-	<!-- View Features -->
+	<!-- View Observations -->
 
-	<section id="features" data-title="View Features" class="panel" data-onshow="initView.features()">
-		<p>Features recorded by you and your colleagues, updated in real-time.</p>
+	<section id="observations" data-title="View Observations" class="panel" data-onshow="initView.features()">
+		<p>Observations recorded by you and your colleagues, updated in real-time.</p>
 		<p id="featurestatus"></p>
-		<h2>Maps</h2>
+		<h2>View Observations on a Map</h2>
 		<p><input type="checkbox" id="onlymine"> <label for="onlymine">Show only my observations</label></p>
 		<ul id="periods">
 			<li><a href="#map" id="hour">Past Hour</a></li>
@@ -673,7 +683,8 @@
 			<li><a href="#map" id="month">Past Month</a></li>
 			<li><a href="#map">All</a></li>
 		</ul>
-		<h2>Google Earth Downloads</h2>
+		<h2>Downloads</h2>
+		<h3>Google Earth</h3>
 		<ul>
 			<li><a href="features.kml.php?period=hour" class="download" target="_blank">Past Hour</a></li>
 			<li><a href="features.kml.php?period=day" class="download" target="_blank">Past Day</a></li>
@@ -681,18 +692,18 @@
 			<li><a href="features.kml.php?period=month" class="download" target="_blank">Past Month</a></li>
 			<li><a href="features.kml.php" class="download" target="_blank">All</a></li>
 		</ul>
-    <h2>GeoJSON Downloads</h2>
-    <ul>
-      <li><a href="features.json.php?period=hour" class="download" target="_blank">Past Hour</a></li>
+		<h3>GeoJSON Downloads</h3>
+		<ul>
+			<li><a href="features.json.php?period=hour" class="download" target="_blank">Past Hour</a></li>
 			<li><a href="features.json.php?period=day" class="download" target="_blank">Past Day</a></li>
 			<li><a href="features.json.php?period=week" class="download" target="_blank">Past Week</a></li>
-      <li><a href="features.json.php?period=month" class="download" target="_blank">Past Month</a></li>
+			<li><a href="features.json.php?period=month" class="download" target="_blank">Past Month</a></li>
 			<li><a href="features.json.php" class="download" target="_blank">All</a></li>
-    </ul>
+		</ul>
 		<p>Maps provided by <a href="http://open.mapquest.com" target="_blank">MapQuest</a>, <a href="http://www.openstreetmap.org/" target="_blank">OpenStreetMap</a> and contributors (portions courtesy NASA/JPL and USDA).</p>
 	</section>
 
-	<!-- Map of Features (set title via script to show Loading status during ajax request for map points) -->
+	<!-- Map of Observations (set title via script to show Loading status during ajax request for map points) -->
 
 	<section id="map" data-title=""></section>
 
@@ -700,10 +711,10 @@
 
 	<section id="photo" data-title="Photo"></section>
 
-	<!-- Sync Records -->
+	<!-- Sync Observations -->
 
-	<section id="sync" data-title="Sync Records" class="panel" data-onshow="initView.sync()">
-		<p>Features you record while not connected to the internet are stored only on your device. They need to by &ldquo;synced&rdquo; to the server when your device is online.</p>
+	<section id="sync" data-title="Sync Observations" class="panel" data-onshow="initView.sync()">
+		<p>Observations you record while not connected to the internet are only stored on your device. They need to by &ldquo;synced&rdquo; to the cloud when your device is online.</p>
 		<p id="syncstatus"></p>
 		<ul id="syncresults" class="normal plaintext">
 			<li class="success"></li>

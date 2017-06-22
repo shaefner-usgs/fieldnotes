@@ -477,7 +477,7 @@ function displayLocation(lat, lon, timestamp) {
 
 	// display map if user online
 	if (navigator.onLine) {
-		var map_url = 'https://api.tiles.mapbox.com/v3/shaefner.map-8sg8c9nv/pin-m-star+cc3311(' + lon + ',' + lat + ')/' + lon + ',' + lat + ',13/544x544.jpg',
+		var map_url = 'https://api.tiles.mapbox.com/v3/shaefner.map-8sg8c9nv/pin-m-star+cc3311(' + lon + ',' + lat + ')/' + lon + ',' + lat + ',15/544x544.jpg',
 			map_app = 'https://maps.apple.com/?q=' + lat + ',' + lon + '&t=m&z=13';
 
 		// map toggle (add target="_blank" so that emy doesn't intercept links)

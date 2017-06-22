@@ -90,9 +90,9 @@ var initView = {
 				$('#syncbutton').removeClass('disabled');
 			}
 		} else {
-			$('#syncbutton').html('Sync Records');
+			$('#syncbutton').html('Sync Observations');
 			$('#syncbutton').addClass('disabled');
-			$('#syncstatus').html('You don&rsquo;t have any records stored on your device.');
+			$('#syncstatus').html('You don&rsquo;t have any observations stored on your device.');
 		}
 	},
 	photo: function() {

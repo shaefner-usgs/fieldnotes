@@ -31,16 +31,16 @@ if ($params['callback']) {
 }
 
 
-
 /**
  * Parse input parameters that control feed display
  * api allows several parameters to be set:
  *
- * 1. period=hour, period=day, etc.
+ * 1. period=hour,day,etc (string).
  * 2. after=1377541566 (unix time stamp)
  * 3. before=1377541566 (unix time stamp)
  * 4. between=after,before (where after and before are unix time stamps)
- * 5. operator=email@domain.com
+ * 5. lat (degrees); lon (degrees); radius (km) - restrict query to geographic area (circle)
+ * 6. operator=email@domain.com
  */
 
 function parseGetVals() {
@@ -53,7 +53,7 @@ function parseGetVals() {
   $content = 'observations';
   $operator = '%'; // mysql wildcard
 
-  $allowed = '/^[\w,\@\.]+$/'; // Sanitize input parameter (alphanumerics + a few others only)
+  $allowed = '/^[\w,\@\.-]+$/'; // Sanitize input parameter (alphanumerics + a few others only)
   $periods = array(
     'hour' => '1 hour ago',
     'day' => '1 day ago',
@@ -62,27 +62,36 @@ function parseGetVals() {
     'quarter' => '3 months ago'
   );
 
-  if (isSet($_GET['after']) && (preg_match($allowed, $_GET['after']))) {
+  if (isSet($_GET['after']) && preg_match($allowed, $_GET['after'])) {
     $after = $_GET['after'];
   }
-	if (isSet($_GET['before']) && (preg_match($allowed, $_GET['before']))) {
+	if (isSet($_GET['before']) && preg_match($allowed, $_GET['before'])) {
 		$before = $_GET['before'];
 	}
-	if (isSet($_GET['between']) && (preg_match($allowed, $_GET['between']))) {
+	if (isSet($_GET['between']) && preg_match($allowed, $_GET['between'])) {
 		list($after, $before) = preg_split('/\s?,\s?/', $_GET['between']);
 	}
-	if (isSet($_GET['callback']) && (preg_match($allowed, $_GET['callback']))) {
+	if (isSet($_GET['callback']) && preg_match($allowed, $_GET['callback'])) {
 		$callback = $_GET['callback'];
 	}
-  if (isSet($_GET['content']) && (preg_match('/^(all|checkins)$/', $_GET['content']))) {
+  if (isSet($_GET['content']) && preg_match('/^(all|checkins)$/', $_GET['content'])) {
     $content = $_GET['content'];
   }
-	if (isSet($_GET['operator']) && (preg_match($allowed, $_GET['operator']))) {
+  if (isSet($_GET['lat']) && preg_match($allowed, $_GET['lat'])) {
+    $params['lat'] = $_GET['lat'];
+  }
+  if (isSet($_GET['lon']) && preg_match($allowed, $_GET['lon'])) {
+    $params['lon'] = $_GET['lon'];
+  }
+	if (isSet($_GET['operator']) && preg_match($allowed, $_GET['operator'])) {
 		$operator = $_GET['operator'];
 	}
-  if (isSet($_GET['period']) && (preg_match($allowed, $_GET['period']))) {
+  if (isSet($_GET['period']) && preg_match($allowed, $_GET['period'])) {
     $period = $_GET['period'];
     $after = strtotime($periods[$period]);
+  }
+  if (isSet($_GET['radius']) && preg_match($allowed, $_GET['radius'])) {
+    $params['radius'] = $_GET['radius'];
   }
 
 	$params['after'] = date('Y-m-d H:i:s', $after);
@@ -94,6 +103,64 @@ function parseGetVals() {
 	return $params;
 }
 
+function getQuery($params, $table) {
+  $filter = '';
+
+  // restrict query to geographical area
+  if ($params['lat'] && $params['lon'] && $params['radius']) {
+    $R = 6371; // earth's mean radius, km
+
+    // first-cut bounding box (in degrees)
+    $maxLat = $params['lat'] + rad2deg($params['radius']/$R);
+    $minLat = $params['lat'] - rad2deg($params['radius']/$R);
+    $maxLon = $params['lon'] + rad2deg(asin($params['radius']/$R) / cos(deg2rad($params['lat'])));
+    $minLon = $params['lon'] - rad2deg(asin($params['radius']/$R) / cos(deg2rad($params['lat'])));
+
+    $filter = sprintf('AND ((location.lat BETWEEN %s AND %s AND location.lon BETWEEN %s AND %s)
+      OR (spoton.latitude BETWEEN %s AND %s AND spoton.longitude BETWEEN %s AND %s))
+      AND ((acos(sin(%s)*sin(radians(location.lat)) + cos(%s)*cos(radians(location.lat))*cos(radians(location.lon) - %s)) * %d < %d)
+      OR (acos(sin(%s)*sin(radians(spoton.latitude)) + cos(%s)*cos(radians(spoton.latitude))*cos(radians(spoton.longitude) - %s)) * %d < %d))',
+      $minLat,
+      $maxLat,
+      $minLon,
+      $maxLon,
+      $minLat,
+      $maxLat,
+      $minLon,
+      $maxLon,
+      $params['lat'],
+      $params['lat'],
+      $params['lon'],
+      $R,
+      $params['radius'],
+      $params['lat'],
+      $params['lat'],
+      $params['lon'],
+      $R,
+      $params['radius']
+    );
+  }
+
+  $query = sprintf("SELECT * FROM %s
+    LEFT JOIN location ON location_id = location.id
+    LEFT JOIN spoton ON spoton_id = spoton.id
+    WHERE (recorded BETWEEN '%s' AND '%s' OR synced BETWEEN '%s' AND '%s')
+      AND ((location.lat != '' AND location.lon != '') OR (spoton.latitude != '' AND spoton.longitude != ''))
+      %s
+      AND operator LIKE '%s'
+    ORDER BY recorded ASC;",
+    $table,
+    $params['after'],
+    $params['before'],
+    $params['after'],
+    $params['before'],
+    $filter,
+    $params['operator']
+  );
+
+  return $query;
+}
+
 // Create json file
 function createJsonFeed($db, $tables, $params) {
 	// Create array to store features
@@ -101,16 +168,7 @@ function createJsonFeed($db, $tables, $params) {
 
 	// Get features from db
 	foreach ($tables as $table => $name) {
-
-		$query_rsFeatures = sprintf("SELECT * FROM %s
-			LEFT JOIN location ON location_id = location.id
-			LEFT JOIN spoton ON spoton_id = spoton.id
-			WHERE (recorded BETWEEN '%s' AND '%s' OR synced BETWEEN '%s' AND '%s')
-				AND ((location.lat != '' AND location.lon != '') OR (spoton.latitude != '' AND spoton.longitude != ''))
-				AND operator LIKE '%s'
-			ORDER BY recorded ASC;",
-			$table, $params['after'], $params['before'], $params['after'], $params['before'], $params['operator']);
-
+    $query_rsFeatures = getQuery($params, $table);
 		$rsFeatures = mysql_query($query_rsFeatures, $db) or die(mysql_error());
 
 		while ($row_rsFeatures = mysql_fetch_assoc($rsFeatures)) {

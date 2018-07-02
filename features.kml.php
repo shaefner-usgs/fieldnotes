@@ -1,66 +1,42 @@
 <?php
 
-// script creates kml file of recorded features
+// Script creates a KML file of recorded features
 
-header('cache-control: no-cache');
-header('Content-Type: application/vnd.google-earth.kml+xml');
-
-include_once 'conf/conf.inc.php';
+include_once 'conf/conf.inc.php'; // $periods and $tables arrays are set here
 include_once 'conf/db.inc.php';
+include_once 'conf/functions.inc.php'; // shared methods
 
-$params = parseGetVals();
-$kml = createKmlFeed($db, $tables, $params);
+$params = getParams($periods);
 
+// Default $tables array is all tables with observations (everything but 'checkin')
+if ($params['content'] === 'all') {
+  $tables['checkin'] = 'Checkin'; // add checkins
+} else if ($params['content'] === 'checkins') {
+  $tables = array('checkin' => 'Checkin'); // set to checkins only
+}
+
+$kmlFeed = createKmlFeed($db, $tables, $params);
+
+// Set headers shared by json/kml file types
+setHeaders('application/vnd.google-earth.kml+xml');
+// Trigger download
 header('Content-Disposition: attachment; filename="fieldnotes.kml"');
-print $kml;
 
+print $kmlFeed;
 
 
 /**
- * Parse input parameters that control feed display
- * api allows several parameters to be set:
+ * Create KML feed
  *
- * 1. period=hour, period=day, etc.
- * 2. after=1377541566 (unix time stamp)
- * 3. before=1377541566 (unix time stamp)
- * 4. between=after,before (where after and before are unix time stamps)
+ * @param $db {Resource}
+ *     MySQL database
+ * @param $tables {Array}
+ *     Database tables from which to query data for output
+ * @param $params {Array}
+ *     Query paramaters
+ *
+ * @return $output {Kml}
  */
-
-function parseGetVals() {
-	$params = array();
-	$periods = array(
-		'hour' => '1 hour ago',
-		'day' => '1 day ago',
-		'week' => '7 days ago',
-		'month' => '1 month ago',
-		'quarter' => '3 months ago'
-	);
-	$before = time();
-	$after = strtotime('2011-01-01');
-	$allowed = '/^[\w,]+$/'; // Sanitize input parameter (alphanumerics only)
-
-	if (isSet($_GET['before']) && (preg_match($allowed, $_GET['before']))) {
-		$before = $_GET['before'];
-	}
-	if (isSet($_GET['after']) && (preg_match($allowed, $_GET['after']))) {
-		$after = $_GET['after'];
-	}
-	if (isSet($_GET['between']) && (preg_match($allowed, $_GET['between']))) {
-		list($after, $before) = preg_split('/\s?,\s?/', $_GET['between']);
-	}
-
-	$params['before_sql'] = date('Y-m-d H:i:s', $before);
-	$params['after_sql'] = date('Y-m-d H:i:s', $after);
-
-	if (isSet($_GET['period']) && (preg_match($allowed, $_GET['period']))) {
-		$period = $_GET['period'];
-		$params['after_sql'] = date("Y-m-d H:i:s", strtotime($periods[$period]));
-	}
-
-	return $params;
-}
-
-// Create kml file
 function createKmlFeed($db, $tables, $params) {
 
 	// KML header
@@ -69,32 +45,26 @@ function createKmlFeed($db, $tables, $params) {
 
 	// Get features from db
 	foreach ($tables as $table => $folder_name) {
-
 		$output .= "		<Folder><name>$folder_name</name><open>0</open>";
 
-		$query_rsFeatures = sprintf("SELECT * FROM %s
-			LEFT JOIN location ON location_id = location.id
-			LEFT JOIN spoton ON spoton_id = spoton.id
-			WHERE (recorded BETWEEN '%s' AND '%s' OR synced BETWEEN '%s' AND '%s')
-				AND ((location.lat != '' AND location.lon != '') OR (spoton.latitude != '' AND spoton.longitude != ''))
-			ORDER BY recorded DESC;",
-			$table, $params['after_sql'], $params['before_sql'], $params['after_sql'], $params['before_sql']);
-
-		$rsFeatures = mysql_query($query_rsFeatures, $db) or die(mysql_error());
+		$query_rsFeatures = createQuery($params, $table);
+    $rsFeatures = mysql_query($query_rsFeatures, $db) or die(mysql_error());
 
 		while ($row_rsFeatures = mysql_fetch_assoc($rsFeatures)) {
 
 			$id = $row_rsFeatures['location_id'];
 			$table = '<table>';
 
-			// get timezone where user submitted form
-			date_default_timezone_set('America/Los_Angeles'); // set to UTC above; need to change it to determine tz accurately
+			// Get timezone where user submitted form
+			date_default_timezone_set('America/Los_Angeles'); // set to UTC in conf; must change to determine tz accurately
 			$timezone = '';
 			$timestamp = '';
 			$name = 'No timestamp'; // default value
 			if ($row_rsFeatures['gmt_offset'] && $row_rsFeatures['timestamp'] !== '0000-00-00 00:00:00') {
-				$dst = date('I', strtotime($row_rsFeatures['timestamp'])); // boolean: if timestamp is in daylight savings time or not
-				$tz_name = timezone_name_from_abbr('', round($row_rsFeatures['gmt_offset']) * 3600, $dst); // timezone name (e.g. America / Los Angeles)
+				// Boolean: if timestamp is in daylight savings time or not
+				$dst = date('I', strtotime($row_rsFeatures['timestamp']));
+				// Timezone name (e.g. America / Los Angeles)
+				$tz_name = timezone_name_from_abbr('', round($row_rsFeatures['gmt_offset']) * 3600, $dst);
 				if ($tz_name) {
 					$dateTime = new DateTime($row_rsFeatures['timestamp']);
 					$dateTime->setTimeZone(new DateTimeZone($tz_name));
@@ -112,7 +82,7 @@ function createKmlFeed($db, $tables, $params) {
 			$device_lon = floatval(round($row_rsFeatures['lon'], 5));
 
 			if ($row_rsFeatures['latitude'] && $row_rsFeatures['longitude']) { // use SpotOn location if set
-				// store device location
+				// Store device location
 				$properties['device-lat'] = $device_lat;
 				$properties['device-lon'] = $device_lon;
 				$coords = array(
@@ -127,7 +97,7 @@ function createKmlFeed($db, $tables, $params) {
 				);
 			}
 
-			// get rid of values we don't want in properties array
+			// Get rid of values we don't want in properties array
 			unset($row_rsFeatures['id']);
 			unset($row_rsFeatures['spoton_id']);
 			unset($row_rsFeatures['location_id']);
@@ -136,7 +106,7 @@ function createKmlFeed($db, $tables, $params) {
 			unset($row_rsFeatures['z']);
 			unset($row_rsFeatures['timestamp']);
 			unset($row_rsFeatures['gmt_offset']);
-			// spoton values
+			// (include spoton values)
 			unset($row_rsFeatures['name']);
 			unset($row_rsFeatures['email']);
 			unset($row_rsFeatures['fname']);
@@ -193,13 +163,4 @@ function createKmlFeed($db, $tables, $params) {
 	$output .= $footer;
 
 	return $output;
-
-}
-
-// convert null values from MySQL to empty strings
-function null2string($value) {
-	if ($value === null) {
-		$value = '';
-	}
-	return $value;
 }

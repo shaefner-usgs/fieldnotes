@@ -19,21 +19,21 @@ date_default_timezone_set('UTC');
 
 // Time periods - Parseable phrase for single word parameters
 $periods = array(
-	'hour' => '1 hour ago',
-	'day' => '1 day ago',
-	'week' => '7 days ago',
-	'month' => '1 month ago',
-	'quarter' => '3 months ago'
+  'hour' => '1 hour ago',
+  'day' => '1 day ago',
+  'week' => '7 days ago',
+  'month' => '1 month ago',
+  'quarter' => '3 months ago'
 );
 
 // Feature forms - names and associated db tables (must match form name values in index.html)
 $tables = array(
-	'landslide' => 'Landslide',
-	'liquefaction' => 'Liquefaction',
-	'rupture' => 'Fault Rupture',
-	'tsunami' => 'Tsunami',
-	'lifelines' => 'Lifelines',
-	'building' => 'Building',
+  'landslide' => 'Landslide',
+  'liquefaction' => 'Liquefaction',
+  'rupture' => 'Fault Rupture',
+  'tsunami' => 'Tsunami',
+  'lifelines' => 'Lifelines',
+  'building' => 'Building',
   'deployment' => 'Deployment',
-	'general' => 'General'
+  'general' => 'General'
 );

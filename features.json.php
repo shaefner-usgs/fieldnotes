@@ -115,7 +115,7 @@ function createJsonFeed($db, $tables, $params) {
           if ($value) {
             $path = pathinfo($_SERVER['REQUEST_URI'], PATHINFO_DIRNAME);
             if (file_exists("uploads/$value")) {
-              $value = sprintf ('http://%s%s/uploads/%s', $_SERVER['SERVER_NAME'], $path, $value);
+              $value = sprintf ('https://%s%s/uploads/%s', $_SERVER['SERVER_NAME'], $path, $value);
             } else {
               $value = '';
             }
